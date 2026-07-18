@@ -21,34 +21,36 @@ export default function FeaturedProperties() {
   ];
 
   return (
-    <section className="py-16 px-6">
-      <h2 className="text-3xl font-bold text-center mb-10">
-        Featured Properties
-      </h2>
+    <section className="py-20 bg-gray-100">
+      <div className="max-w-7xl mx-auto px-6">
+        <h2 className="text-4xl font-bold text-center mb-12">
+          Featured Properties
+        </h2>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {properties.map((property) => (
-          <div
-            key={property.id}
-            className="border rounded-lg shadow-md p-6 hover:shadow-xl transition"
-          >
-            <h3 className="text-xl font-semibold">
-              {property.title}
-            </h3>
+        <div className="grid md:grid-cols-3 gap-6">
+          {properties.map((property) => (
+            <div
+              key={property.id}
+              className="border rounded-lg shadow-md p-6 bg-white hover:shadow-xl transition"
+            >
+              <h3 className="text-xl font-semibold">
+                {property.title}
+              </h3>
 
-            <p className="text-gray-600 mt-2">
-              {property.location}
-            </p>
+              <p className="text-gray-600 mt-2">
+                {property.location}
+              </p>
 
-            <p className="text-blue-700 font-bold text-xl mt-3">
-              {property.price}
-            </p>
+              <p className="text-blue-700 font-bold text-xl mt-3">
+                {property.price}
+              </p>
 
-            <button className="mt-6 w-full bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-800">
-              View Property
-            </button>
-          </div>
-        ))}
+              <button className="mt-6 w-full bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-800">
+                View Property
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
