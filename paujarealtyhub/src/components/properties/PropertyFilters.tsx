@@ -1,11 +1,15 @@
 type PropertyFiltersProps = {
   selectedType: string;
-  setSelectedType: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedType: (value: string) => void;
+  sortOption: string;
+  setSortOption: (value: string) => void;
 };
 
 export default function PropertyFilters({
   selectedType,
   setSelectedType,
+  sortOption,
+  setSortOption,
 }: PropertyFiltersProps) {
   return (
     <section className="py-8 bg-white border-b">
@@ -26,20 +30,15 @@ export default function PropertyFilters({
           <option value="Land">Land</option>
         </select>
 
-        <select className="border rounded-lg px-4 py-3">
-          <option>All Status</option>
-          <option>For Sale</option>
-          <option>For Rent</option>
-          <option>Lease</option>
-        </select>
-
-        <select className="border rounded-lg px-4 py-3">
-          <option>Bedrooms</option>
-          <option>1+</option>
-          <option>2+</option>
-          <option>3+</option>
-          <option>4+</option>
-          <option>5+</option>
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          className="border rounded-lg px-4 py-3"
+        >
+          <option value="default">Sort By</option>
+          <option value="price-low">Price: Low → High</option>
+          <option value="price-high">Price: High → Low</option>
+          <option value="featured">Featured First</option>
         </select>
 
       </div>

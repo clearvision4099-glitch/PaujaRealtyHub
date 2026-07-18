@@ -4,14 +4,16 @@ import { properties } from "@/data/properties";
 type PropertyGridProps = {
   searchTerm?: string;
   selectedType?: string;
+  sortOption?: string;
 };
 
 export default function PropertyGrid({
   searchTerm = "",
   selectedType = "",
+  sortOption = "default",
 }: PropertyGridProps) {
-  const filteredProperties = properties.filter((property) => {
-    // Hide featured properties because they already appear above
+  let filteredProperties = properties.filter((property) => {
+    // Hide featured properties since they appear above
     if (property.featured) return false;
 
     const search = searchTerm.toLowerCase();
@@ -20,13 +22,41 @@ export default function PropertyGrid({
       property.title.toLowerCase().includes(search) ||
       property.location.toLowerCase().includes(search) ||
       property.type.toLowerCase().includes(search) ||
-      property.listingType.toLowerCase().includes(search);
+      property.status.toLowerCase().includes(search);
 
     const matchesType =
       selectedType === "" || property.type === selectedType;
 
     return matchesSearch && matchesType;
   });
+
+  // Sorting
+  switch (sortOption) {
+    case "price-low":
+      filteredProperties.sort(
+        (a, b) =>
+          Number(a.price.replace(/[^0-9]/g, "")) -
+          Number(b.price.replace(/[^0-9]/g, ""))
+      );
+      break;
+
+    case "price-high":
+      filteredProperties.sort(
+        (a, b) =>
+          Number(b.price.replace(/[^0-9]/g, "")) -
+          Number(a.price.replace(/[^0-9]/g, ""))
+      );
+      break;
+
+    case "featured":
+      filteredProperties.sort(
+        (a, b) => Number(b.featured) - Number(a.featured)
+      );
+      break;
+
+    default:
+      break;
+  }
 
   return (
     <section className="py-16 bg-gray-100">

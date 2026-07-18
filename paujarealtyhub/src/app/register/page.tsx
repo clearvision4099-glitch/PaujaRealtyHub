@@ -1,34 +1,9 @@
-"use client";
-
-import { useState } from "react";
-
-import PropertyHero from "@/components/properties/PropertyHero";
-import SearchBar from "@/components/properties/SearchBar";
-import PropertyFilters from "@/components/properties/PropertyFilters";
-import PropertyGrid from "@/components/properties/PropertyGrid";
-
-export default function PropertiesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState("");
-
+export default function RegisterPage() {
   return (
-    <>
-      <PropertyHero />
-
-      <SearchBar
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-      />
-
-      <PropertyFilters
-        selectedType={selectedType}
-        setSelectedType={setSelectedType}
-      />
-
-      <PropertyGrid
-        searchTerm={searchTerm}
-        selectedType={selectedType}
-      />
-    </>
+    <main className="min-h-screen flex items-center justify-center">
+      <h1 className="text-4xl font-bold">
+        Register Page Coming Soon
+      </h1>
+    </main>
   );
 }

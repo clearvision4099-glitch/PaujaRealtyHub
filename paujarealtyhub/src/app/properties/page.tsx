@@ -11,6 +11,7 @@ import PropertyGrid from "@/components/properties/PropertyGrid";
 export default function PropertiesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("");
+  const [sortOption, setSortOption] = useState("default");
 
   return (
     <>
@@ -24,6 +25,8 @@ export default function PropertiesPage() {
       <PropertyFilters
         selectedType={selectedType}
         setSelectedType={setSelectedType}
+        sortOption={sortOption}
+        setSortOption={setSortOption}
       />
 
       <FeaturedProperties />
