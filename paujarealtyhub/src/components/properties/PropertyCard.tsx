@@ -5,6 +5,7 @@ type Property = {
   id: number;
   title: string;
   type: string;
+  listingType: string;
   status: string;
   location: string;
   price: string;

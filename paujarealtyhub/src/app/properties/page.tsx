@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
+
 import PropertyHero from "@/components/properties/PropertyHero";
 import SearchBar from "@/components/properties/SearchBar";
 import PropertyFilters from "@/components/properties/PropertyFilters";
+import FeaturedProperties from "@/components/properties/FeaturedProperties";
 import PropertyGrid from "@/components/properties/PropertyGrid";
 
 export default function PropertiesPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedType, setSelectedType] = useState("");
 
   return (
     <>
@@ -18,9 +21,17 @@ export default function PropertiesPage() {
         setSearchTerm={setSearchTerm}
       />
 
-      <PropertyFilters />
+      <PropertyFilters
+        selectedType={selectedType}
+        setSelectedType={setSelectedType}
+      />
 
-      <PropertyGrid />
+      <FeaturedProperties />
+
+      <PropertyGrid
+        searchTerm={searchTerm}
+        selectedType={selectedType}
+      />
     </>
   );
 }
