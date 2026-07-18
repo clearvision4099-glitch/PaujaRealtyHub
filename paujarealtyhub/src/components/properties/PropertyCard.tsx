@@ -4,12 +4,15 @@ import Link from "next/link";
 type Property = {
   id: number;
   title: string;
+  type: string;
+  status: string;
   location: string;
   price: string;
   bedrooms: number;
   bathrooms: number;
   size: string;
   image: string;
+  featured: boolean;
 };
 
 type PropertyCardProps = {
@@ -18,18 +21,29 @@ type PropertyCardProps = {
 
 export default function PropertyCard({ property }: PropertyCardProps) {
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+    <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition">
 
       <div className="relative w-full h-56">
         <Image
           src={property.image}
           alt={property.title}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover"
         />
       </div>
 
       <div className="p-6">
+
+        <div className="flex justify-between items-center mb-3">
+          <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
+            {property.type}
+          </span>
+
+          <span className="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+            {property.status}
+          </span>
+        </div>
 
         <h2 className="text-2xl font-bold">
           {property.title}
