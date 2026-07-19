@@ -32,9 +32,10 @@ export default function PropertiesPage() {
       <FeaturedProperties />
 
       <PropertyGrid
-        searchTerm={searchTerm}
-        selectedType={selectedType}
-      />
+  searchTerm={searchTerm}
+  selectedType={selectedType}
+  sortOption={sortOption}
+/>
     </>
   );
 }
