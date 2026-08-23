@@ -39,38 +39,56 @@ export default function ExploreServices() {
   ];
 
   return (
-    <section className="py-20 bg-white">
+    <section className="bg-[#F7F7F3] py-20">
       <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center">
-          Explore Real Estate Services
-        </h2>
 
-        <p className="text-center text-gray-600 mt-4 mb-12">
-          Everything you need in one trusted global real estate hub.
-        </p>
+        <div className="text-center max-w-3xl mx-auto mb-14">
 
-        <div className="grid md:grid-cols-3 gap-8">
+          <span className="inline-block text-[#B8922E] font-semibold tracking-wide uppercase text-sm">
+            Explore Pauja
+          </span>
+
+          <h2 className="text-4xl md:text-5xl font-bold text-[#0B1F3A] mt-3">
+            Explore Real Estate Services
+          </h2>
+
+          <p className="text-gray-600 mt-4 text-lg">
+            Everything you need in one trusted global real estate hub.
+          </p>
+
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
           {services.map((service) => (
             <div
               key={service.title}
-              className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-2xl transition duration-300"
+              className="group bg-white rounded-2xl border border-gray-100 p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="text-5xl mb-6">{service.icon}</div>
+              <div className="w-16 h-16 rounded-2xl bg-[#08192E] text-3xl flex items-center justify-center mb-6 group-hover:bg-[#C9A227] transition">
+                {service.icon}
+              </div>
 
-              <h3 className="text-2xl font-semibold mb-3">
+              <h3 className="text-2xl font-bold text-[#0B1F3A] mb-3">
                 {service.title}
               </h3>
 
-              <p className="text-gray-600">
+              <p className="text-gray-600 leading-7">
                 {service.description}
               </p>
 
-              <button className="mt-6 text-blue-700 font-semibold hover:underline">
-                Learn More →
+              <button
+                type="button"
+                className="mt-6 inline-flex items-center gap-2 text-[#B8922E] font-semibold hover:text-[#08192E] transition"
+              >
+                Learn More
+                <span>→</span>
               </button>
             </div>
           ))}
+
         </div>
+
       </div>
     </section>
   );

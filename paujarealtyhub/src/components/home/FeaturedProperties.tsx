@@ -1,56 +1,78 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { getFeaturedProperties } from "@/services/publicProperties";
+import PropertyCard from "@/components/properties/PropertyCard";
+
 export default function FeaturedProperties() {
-  const properties = [
-    {
-      id: 1,
-      title: "Luxury Apartment",
-      location: "Lagos, Nigeria",
-      price: "$250,000",
-    },
-    {
-      id: 2,
-      title: "Modern Villa",
-      location: "Accra, Ghana",
-      price: "$480,000",
-    },
-    {
-      id: 3,
-      title: "Beach House",
-      location: "Cape Town, South Africa",
-      price: "$720,000",
-    },
-  ];
+  const [properties, setProperties] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadProperties() {
+      const data = await getFeaturedProperties();
+
+      setProperties(data);
+      setLoading(false);
+    }
+
+    loadProperties();
+  }, []);
 
   return (
-    <section className="py-20 bg-gray-100">
+    <section className="bg-white py-20">
       <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center mb-12">
-          Featured Properties
-        </h2>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {properties.map((property) => (
-            <div
-              key={property.id}
-              className="border rounded-lg shadow-md p-6 bg-white hover:shadow-xl transition"
-            >
-              <h3 className="text-xl font-semibold">
-                {property.title}
-              </h3>
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
 
-              <p className="text-gray-600 mt-2">
-                {property.location}
-              </p>
+          <div>
+            <span className="text-[#B8922E] font-semibold uppercase tracking-wider text-sm">
+              Featured Listings
+            </span>
 
-              <p className="text-blue-700 font-bold text-xl mt-3">
-                {property.price}
-              </p>
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0B1F3A] mt-3">
+              Featured Properties
+            </h2>
 
-              <button className="mt-6 w-full bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-800">
-                View Property
-              </button>
-            </div>
-          ))}
+            <p className="text-gray-600 mt-3 text-lg">
+              Discover some of the latest properties available on PaujaRealtyHub.
+            </p>
+          </div>
+
+          <a
+            href="/properties"
+            className="inline-flex items-center justify-center bg-[#08192E] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+          >
+            View All Properties →
+          </a>
+
         </div>
+
+        {loading ? (
+          <div className="bg-[#F7F7F3] rounded-2xl py-16 text-center text-gray-500">
+            Loading properties...
+          </div>
+        ) : properties.length === 0 ? (
+          <div className="bg-[#F7F7F3] rounded-2xl py-16 text-center">
+            <h3 className="text-xl font-bold text-[#0B1F3A]">
+              No properties available yet
+            </h3>
+
+            <p className="text-gray-500 mt-2">
+              Published properties will appear here.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {properties.map((property) => (
+              <PropertyCard
+                key={property.id}
+                property={property}
+              />
+            ))}
+          </div>
+        )}
+
       </div>
     </section>
   );

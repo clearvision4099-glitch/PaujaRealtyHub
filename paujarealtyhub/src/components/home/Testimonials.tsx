@@ -1,62 +1,65 @@
 export default function Testimonials() {
-  const testimonials = [
+  const benefits = [
     {
-      name: "James Okoro",
-      country: "Nigeria",
-      message:
-        "PaujaRealtyHub made buying my first investment property abroad simple and stress-free.",
+      icon: "🛡️",
+      title: "Built Around Trust",
+      description:
+        "Property seekers can view seller and agent information and communicate directly before making decisions.",
     },
     {
-      name: "Grace Mensah",
-      country: "Ghana",
-      message:
-        "I listed my commercial property and connected with genuine buyers within weeks.",
+      icon: "💬",
+      title: "Direct Communication",
+      description:
+        "Contact property professionals through messaging, phone, WhatsApp or email from the property listing.",
     },
     {
-      name: "David Smith",
-      country: "United Kingdom",
-      message:
-        "The platform gave me confidence to invest internationally with verified professionals.",
+      icon: "🔎",
+      title: "Simple Property Discovery",
+      description:
+        "Search properties by location, property type and listing type to quickly find relevant opportunities.",
     },
   ];
 
   return (
-    <section className="py-20 bg-gray-100">
+    <section className="bg-[#F7F7F3] py-20">
       <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center">
-          What Our Clients Say
-        </h2>
 
-        <p className="text-center text-gray-600 mt-4 mb-12">
-          Building trust through successful real estate experiences.
-        </p>
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <span className="text-[#B8922E] font-semibold uppercase tracking-wider text-sm">
+            Why PaujaRealtyHub
+          </span>
+
+          <h2 className="text-4xl md:text-5xl font-bold text-[#0B1F3A] mt-3">
+            Property Connections Made Simpler
+          </h2>
+
+          <p className="text-gray-600 mt-4 text-lg">
+            Designed to make discovering, listing and discussing
+            property opportunities easier.
+          </p>
+        </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial) => (
+          {benefits.map((benefit) => (
             <div
-              key={testimonial.name}
-              className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition"
+              key={benefit.title}
+              className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="text-yellow-500 text-2xl mb-4">
-                ⭐⭐⭐⭐⭐
+              <div className="w-16 h-16 rounded-2xl bg-[#08192E] flex items-center justify-center text-3xl mb-6">
+                {benefit.icon}
               </div>
 
-              <p className="italic text-gray-700">
-                "{testimonial.message}"
+              <h3 className="text-2xl font-bold text-[#0B1F3A]">
+                {benefit.title}
+              </h3>
+
+              <p className="text-gray-600 leading-7 mt-4">
+                {benefit.description}
               </p>
-
-              <div className="mt-6">
-                <h3 className="font-bold">
-                  {testimonial.name}
-                </h3>
-
-                <p className="text-gray-500">
-                  {testimonial.country}
-                </p>
-              </div>
             </div>
           ))}
         </div>
+
       </div>
     </section>
   );

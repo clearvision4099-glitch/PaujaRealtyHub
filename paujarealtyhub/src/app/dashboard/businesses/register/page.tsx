@@ -1,0 +1,612 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { supabase } from "@/lib/supabase";
+
+export default function RegisterBusinessPage() {
+  const router = useRouter();
+
+  const [businessName, setBusinessName] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [phone, setPhone] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
+
+  const [country, setCountry] = useState("Nigeria");
+  const [businessState, setBusinessState] = useState("");
+  const [city, setCity] = useState("");
+  const [address, setAddress] = useState("");
+
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+
+  const [locating, setLocating] = useState(false);
+  const [locationMessage, setLocationMessage] = useState("");
+
+  const [saving, setSaving] = useState(false);
+
+  const inputClass =
+    "w-full border border-gray-200 rounded-xl px-4 py-3 bg-[#FAFAF8] text-[#0B1F3A] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227] focus:border-transparent transition";
+
+  const categories = [
+    "Architect",
+    "Law Firm",
+    "Construction Company",
+    "Interior Designer",
+    "Furniture",
+    "Cleaning Service",
+    "Insurance",
+    "Mortgage",
+    "Hotel",
+    "Event Centre",
+    "Property Management",
+    "Surveyor",
+    "Valuer",
+    "Security Service",
+    "Moving Service",
+    "Building Materials",
+    "Other",
+  ];
+
+  function captureLocation() {
+    if (!navigator.geolocation) {
+      setLocationMessage(
+        "Location services are not supported by this device."
+      );
+      return;
+    }
+
+    setLocating(true);
+    setLocationMessage("Finding your business location...");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLatitude(position.coords.latitude);
+        setLongitude(position.coords.longitude);
+
+        setLocationMessage(
+          "Business location captured successfully."
+        );
+
+        setLocating(false);
+      },
+      (error) => {
+        console.error("BUSINESS GEOLOCATION ERROR:", error);
+
+        let message = "Unable to capture business location.";
+
+        if (error.code === error.PERMISSION_DENIED) {
+          message =
+            "Location permission was denied. Please allow location access and try again.";
+        }
+
+        if (error.code === error.POSITION_UNAVAILABLE) {
+          message =
+            "Your current location could not be determined.";
+        }
+
+        if (error.code === error.TIMEOUT) {
+          message =
+            "Location request timed out. Please try again.";
+        }
+
+        setLocationMessage(message);
+        setLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
+      }
+    );
+  }
+
+  function clearLocation() {
+    setLatitude(null);
+    setLongitude(null);
+    setLocationMessage("Business location removed.");
+  }
+
+  async function handleSubmit() {
+    if (saving) return;
+
+    if (!businessName.trim()) {
+      alert("Please enter the business name.");
+      return;
+    }
+
+    if (!category) {
+      alert("Please select a business category.");
+      return;
+    }
+
+    if (!phone.trim() && !whatsapp.trim() && !email.trim()) {
+      alert(
+        "Please provide at least one contact method: phone, WhatsApp or email."
+      );
+      return;
+    }
+
+    if (!businessState.trim()) {
+      alert("Please select a state.");
+      return;
+    }
+
+    if (!city.trim()) {
+      alert("Please enter the city or area.");
+      return;
+    }
+
+    if (!address.trim()) {
+      alert("Please enter the business address.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        alert("You must be logged in to register a business.");
+        router.push("/login");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("businesses")
+        .insert([
+          {
+            user_id: user.id,
+
+            business_name: businessName.trim(),
+            category,
+            description: description.trim() || null,
+
+            phone: phone.trim() || null,
+            whatsapp: whatsapp.trim() || null,
+            email: email.trim() || null,
+            website: website.trim() || null,
+
+            country,
+            state: businessState,
+            city: city.trim(),
+            address: address.trim(),
+
+            latitude,
+            longitude,
+
+            status: "Active",
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error("REGISTER BUSINESS ERROR:", error);
+        throw error;
+      }
+
+      alert("Business registered successfully.");
+
+      router.push(`/dashboard/businesses`);
+    } catch (error: any) {
+      console.error("REGISTER BUSINESS ERROR:", error);
+
+      alert(
+        error?.message ||
+          "Unable to register business."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const hasCoordinates =
+    latitude !== null &&
+    longitude !== null;
+
+  return (
+    <main className="p-4 md:p-8">
+
+      <div className="max-w-4xl mx-auto">
+
+        {/* HEADER */}
+
+        <div className="mb-10">
+
+          <span className="text-[#B8922E] text-sm font-semibold uppercase tracking-wider">
+            Pauja Business Ecosystem
+          </span>
+
+          <h1 className="text-4xl font-bold text-[#0B1F3A] mt-2">
+            Register Your Business
+          </h1>
+
+          <p className="text-gray-500 mt-3 max-w-2xl">
+            Create a business profile so customers can discover your services
+            around properties and locations across PaujaRealtyHub.
+          </p>
+
+        </div>
+
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-lg p-6 md:p-8 space-y-8">
+
+          {/* BUSINESS DETAILS */}
+
+          <section>
+
+            <h2 className="text-2xl font-bold text-[#0B1F3A]">
+              Business Details
+            </h2>
+
+            <p className="text-gray-500 mt-2">
+              Tell customers what your business does.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-5 mt-6">
+
+              <div>
+                <label className="block mb-2 font-semibold text-[#0B1F3A]">
+                  Business Name
+                </label>
+
+                <input
+                  type="text"
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  placeholder="e.g. Prime Interiors Ltd"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 font-semibold text-[#0B1F3A]">
+                  Category
+                </label>
+
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">
+                    Select Category
+                  </option>
+
+                  {categories.map((item) => (
+                    <option
+                      key={item}
+                      value={item}
+                    >
+                      {item}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+            </div>
+
+            <div className="mt-5">
+
+              <label className="block mb-2 font-semibold text-[#0B1F3A]">
+                Description
+              </label>
+
+              <textarea
+                rows={5}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe your services, experience and what makes your business useful to Pauja customers."
+                className={inputClass}
+              />
+
+            </div>
+
+          </section>
+
+          {/* CONTACT */}
+
+          <section className="border-t border-gray-100 pt-8">
+
+            <h2 className="text-2xl font-bold text-[#0B1F3A]">
+              Contact Information
+            </h2>
+
+            <div className="grid md:grid-cols-2 gap-5 mt-6">
+
+              <div>
+                <label className="block mb-2 font-semibold text-[#0B1F3A]">
+                  Phone
+                </label>
+
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="e.g. +234..."
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 font-semibold text-[#0B1F3A]">
+                  WhatsApp
+                </label>
+
+                <input
+                  type="tel"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  placeholder="WhatsApp number"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 font-semibold text-[#0B1F3A]">
+                  Email
+                </label>
+
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="business@example.com"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 font-semibold text-[#0B1F3A]">
+                  Website
+                </label>
+
+                <input
+                  type="url"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  placeholder="https://..."
+                  className={inputClass}
+                />
+              </div>
+
+            </div>
+
+          </section>
+
+          {/* LOCATION */}
+
+          <section className="border-t border-gray-100 pt-8">
+
+            <h2 className="text-2xl font-bold text-[#0B1F3A]">
+              Business Location
+            </h2>
+
+            <p className="text-gray-500 mt-2">
+              This location will later power nearby discovery and Pauja Location Intelligence.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-5 mt-6">
+
+              <div>
+                <label className="block mb-2 font-semibold text-[#0B1F3A]">
+                  Country
+                </label>
+
+                <select
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className={inputClass}
+                >
+                  <option>
+                    Nigeria
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block mb-2 font-semibold text-[#0B1F3A]">
+                  State
+                </label>
+
+                <select
+                  value={businessState}
+                  onChange={(e) => setBusinessState(e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">
+                    Select State
+                  </option>
+
+                  <option>Lagos</option>
+                  <option>Abuja</option>
+                  <option>Ogun</option>
+                  <option>Oyo</option>
+                  <option>Rivers</option>
+                  <option>Delta</option>
+                  <option>Anambra</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block mb-2 font-semibold text-[#0B1F3A]">
+                  City / Area
+                </label>
+
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="e.g. Lekki"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 font-semibold text-[#0B1F3A]">
+                  Full Address
+                </label>
+
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Street / office address"
+                  className={inputClass}
+                />
+              </div>
+
+            </div>
+
+            {/* LOCATION INTELLIGENCE */}
+
+            <div className="mt-6 rounded-2xl bg-[#08192E] text-white border border-[#C9A227]/30 p-6">
+
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
+
+                <div>
+
+                  <span className="text-[#C9A227] text-xs uppercase tracking-widest font-bold">
+                    Pauja Location Intelligence
+                  </span>
+
+                  <h3 className="text-xl font-bold mt-2">
+                    Confirm Business Location
+                  </h3>
+
+                  <p className="text-gray-300 mt-2 max-w-xl">
+                    Accurate coordinates will help Pauja show your business to relevant customers nearby.
+                  </p>
+
+                </div>
+
+                <span
+                  className={`self-start px-4 py-2 rounded-full text-sm font-bold ${
+                    hasCoordinates
+                      ? "bg-green-100 text-green-700"
+                      : "bg-white/10 text-gray-300"
+                  }`}
+                >
+                  {hasCoordinates
+                    ? "✓ Location Captured"
+                    : "Location Not Confirmed"}
+                </span>
+
+              </div>
+
+              <div className="flex flex-wrap gap-3 mt-6">
+
+                <button
+                  type="button"
+                  disabled={locating}
+                  onClick={captureLocation}
+                  className="bg-[#C9A227] text-[#08192E] px-6 py-3 rounded-xl font-bold hover:brightness-110 transition disabled:opacity-50"
+                >
+                  {locating
+                    ? "Locating..."
+                    : hasCoordinates
+                    ? "Update Location"
+                    : "Capture Current Location"}
+                </button>
+
+                {hasCoordinates && (
+                  <button
+                    type="button"
+                    onClick={clearLocation}
+                    className="border border-white/30 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/10 transition"
+                  >
+                    Remove Location
+                  </button>
+                )}
+
+              </div>
+
+              {locationMessage && (
+                <p className="text-sm text-gray-300 mt-4">
+                  {locationMessage}
+                </p>
+              )}
+
+              {hasCoordinates && (
+                <div className="grid sm:grid-cols-2 gap-4 mt-5">
+
+                  <div className="bg-white/5 rounded-xl border border-white/10 p-4">
+                    <p className="text-xs text-gray-400 uppercase">
+                      Latitude
+                    </p>
+
+                    <p className="font-semibold mt-1">
+                      {latitude?.toFixed(6)}
+                    </p>
+                  </div>
+
+                  <div className="bg-white/5 rounded-xl border border-white/10 p-4">
+                    <p className="text-xs text-gray-400 uppercase">
+                      Longitude
+                    </p>
+
+                    <p className="font-semibold mt-1">
+                      {longitude?.toFixed(6)}
+                    </p>
+                  </div>
+
+                </div>
+              )}
+
+            </div>
+
+          </section>
+
+          {/* PLATFORM NOTE */}
+
+          <div className="bg-[#C9A227]/10 border border-[#C9A227]/20 rounded-xl p-5">
+
+            <p className="text-sm text-[#0B1F3A] leading-6">
+              <strong>Verification and Sponsored placement are controlled by PaujaRealtyHub.</strong>{" "}
+              Registering a business does not automatically make it verified or sponsored.
+            </p>
+
+          </div>
+
+          {/* SUBMIT */}
+
+          <div className="border-t border-gray-100 pt-7 flex flex-col sm:flex-row gap-3 sm:justify-end">
+
+            <button
+              type="button"
+              onClick={() =>
+                router.push("/dashboard/businesses")
+              }
+              className="border border-gray-300 text-gray-600 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              disabled={saving}
+              onClick={handleSubmit}
+              className="bg-[#08192E] text-white px-7 py-3 rounded-xl font-bold hover:bg-[#C9A227] hover:text-[#08192E] transition disabled:opacity-50"
+            >
+              {saving
+                ? "Registering..."
+                : "Register Business"}
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+  );
+}
