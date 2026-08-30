@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
+import { BUSINESS_CATEGORIES } from "@/lib/businessCategories";
 
 export default function RegisterBusinessPage() {
   const router = useRouter();
@@ -28,30 +29,26 @@ export default function RegisterBusinessPage() {
   const [locating, setLocating] = useState(false);
   const [locationMessage, setLocationMessage] = useState("");
 
+  // BUSINESS MEDIA
+
+const [logoFile, setLogoFile] = useState<File | null>(null);
+const [coverFile, setCoverFile] = useState<File | null>(null);
+const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+const [videoFile, setVideoFile] = useState<File | null>(null);
+
+const [logoPreview, setLogoPreview] = useState("");
+const [coverPreview, setCoverPreview] = useState("");
+const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+const [videoPreview, setVideoPreview] = useState("");
+
+const [videoDuration, setVideoDuration] = useState<number | null>(null);
+const [mediaMessage, setMediaMessage] = useState("");
   const [saving, setSaving] = useState(false);
 
   const inputClass =
     "w-full border border-gray-200 rounded-xl px-4 py-3 bg-[#FAFAF8] text-[#0B1F3A] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227] focus:border-transparent transition";
 
-  const categories = [
-    "Architect",
-    "Law Firm",
-    "Construction Company",
-    "Interior Designer",
-    "Furniture",
-    "Cleaning Service",
-    "Insurance",
-    "Mortgage",
-    "Hotel",
-    "Event Centre",
-    "Property Management",
-    "Surveyor",
-    "Valuer",
-    "Security Service",
-    "Moving Service",
-    "Building Materials",
-    "Other",
-  ];
+ 
 
   function captureLocation() {
     if (!navigator.geolocation) {
@@ -112,102 +109,726 @@ export default function RegisterBusinessPage() {
     setLocationMessage("Business location removed.");
   }
 
-  async function handleSubmit() {
-    if (saving) return;
+  function handleLogoSelection(
+  e: React.ChangeEvent<HTMLInputElement>
+) {
+  const file = e.target.files?.[0];
 
-    if (!businessName.trim()) {
-      alert("Please enter the business name.");
-      return;
-    }
+  if (!file) {
+    return;
+  }
 
-    if (!category) {
-      alert("Please select a business category.");
-      return;
-    }
+  if (!file.type.startsWith("image/")) {
+    alert("Please select a valid image file.");
+    return;
+  }
 
-    if (!phone.trim() && !whatsapp.trim() && !email.trim()) {
+  if (file.size > 10 * 1024 * 1024) {
+    alert("Logo image must be 10 MB or less.");
+    return;
+  }
+
+  setLogoFile(file);
+  setLogoPreview(URL.createObjectURL(file));
+}
+
+
+function handleCoverSelection(
+  e: React.ChangeEvent<HTMLInputElement>
+) {
+  const file = e.target.files?.[0];
+
+  if (!file) {
+    return;
+  }
+
+  if (!file.type.startsWith("image/")) {
+    alert("Please select a valid image file.");
+    return;
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    alert("Cover image must be 10 MB or less.");
+    return;
+  }
+
+  setCoverFile(file);
+  setCoverPreview(URL.createObjectURL(file));
+}
+
+
+function handleGallerySelection(
+  e: React.ChangeEvent<HTMLInputElement>
+) {
+  const files = Array.from(
+    e.target.files || []
+  );
+
+  if (files.length === 0) {
+    return;
+  }
+
+  if (files.length > 8) {
+    alert(
+      "You can upload a maximum of 8 gallery images."
+    );
+
+    e.target.value = "";
+    return;
+  }
+
+  const invalidFile =
+    files.find(
+      (file) =>
+        !file.type.startsWith("image/")
+    );
+
+  if (invalidFile) {
+    alert(
+      "All gallery files must be images."
+    );
+
+    e.target.value = "";
+    return;
+  }
+
+  const oversizedFile =
+    files.find(
+      (file) =>
+        file.size >
+        10 * 1024 * 1024
+    );
+
+  if (oversizedFile) {
+    alert(
+      "Each gallery image must be 10 MB or less."
+    );
+
+    e.target.value = "";
+    return;
+  }
+
+  setGalleryFiles(files);
+
+  setGalleryPreviews(
+    files.map((file) =>
+      URL.createObjectURL(file)
+    )
+  );
+}
+
+
+function handleVideoSelection(
+  e: React.ChangeEvent<HTMLInputElement>
+) {
+  const file = e.target.files?.[0];
+
+  if (!file) {
+    return;
+  }
+
+  setMediaMessage("");
+
+  if (!file.type.startsWith("video/")) {
+    alert(
+      "Please select a valid video file."
+    );
+
+    e.target.value = "";
+    return;
+  }
+
+  if (
+    file.size >
+    100 * 1024 * 1024
+  ) {
+    alert(
+      "Promo video must be 100 MB or less."
+    );
+
+    e.target.value = "";
+    return;
+  }
+
+  const objectUrl =
+    URL.createObjectURL(file);
+
+  const video =
+    document.createElement(
+      "video"
+    );
+
+  video.preload = "metadata";
+
+  video.onloadedmetadata = () => {
+    const duration =
+      video.duration;
+
+    URL.revokeObjectURL(
+      video.src
+    );
+
+    if (
+      !Number.isFinite(
+        duration
+      )
+    ) {
       alert(
-        "Please provide at least one contact method: phone, WhatsApp or email."
+        "Unable to read the video duration."
       );
+
+      e.target.value = "";
       return;
     }
 
-    if (!businessState.trim()) {
-      alert("Please select a state.");
+    if (duration > 60) {
+      alert(
+        "Promo video must be 60 seconds or less."
+      );
+
+      setVideoFile(null);
+      setVideoPreview("");
+      setVideoDuration(null);
+
+      e.target.value = "";
       return;
     }
 
-    if (!city.trim()) {
-      alert("Please enter the city or area.");
+    setVideoFile(file);
+
+    setVideoPreview(
+      URL.createObjectURL(file)
+    );
+
+    setVideoDuration(
+      Math.ceil(duration)
+    );
+
+    setMediaMessage(
+      `Video ready: ${Math.ceil(
+        duration
+      )} seconds.`
+    );
+  };
+
+  video.onerror = () => {
+    URL.revokeObjectURL(
+      objectUrl
+    );
+
+    alert(
+      "Unable to read this video file."
+    );
+
+    e.target.value = "";
+  };
+
+  video.src = objectUrl;
+}
+
+ async function handleSubmit() {
+  if (saving) return;
+
+  if (!businessName.trim()) {
+    alert("Please enter the business name.");
+    return;
+  }
+
+  if (!category) {
+    alert("Please select a business category.");
+    return;
+  }
+
+  if (
+    !phone.trim() &&
+    !whatsapp.trim() &&
+    !email.trim()
+  ) {
+    alert(
+      "Please provide at least one contact method: phone, WhatsApp or email."
+    );
+    return;
+  }
+
+  if (!businessState.trim()) {
+    alert("Please select a state.");
+    return;
+  }
+
+  if (!city.trim()) {
+    alert("Please enter the city or area.");
+    return;
+  }
+
+  if (!address.trim()) {
+    alert("Please enter the business address.");
+    return;
+  }
+
+  if (
+    videoFile &&
+    (videoDuration === null ||
+      videoDuration > 60)
+  ) {
+    alert(
+      "Promo video must be 60 seconds or less."
+    );
+    return;
+  }
+
+  try {
+    setSaving(true);
+    setMediaMessage(
+      "Registering business..."
+    );
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      alert(
+        "You must be logged in to register a business."
+      );
+
+      router.push("/login");
       return;
     }
 
-    if (!address.trim()) {
-      alert("Please enter the business address.");
-      return;
+    /*
+    -----------------------------------
+    CREATE BUSINESS FIRST
+    -----------------------------------
+    */
+
+    const {
+      data: business,
+      error: businessError,
+    } = await supabase
+      .from("businesses")
+      .insert([
+        {
+          user_id: user.id,
+
+          business_name:
+            businessName.trim(),
+
+          category,
+
+          description:
+            description.trim() ||
+            null,
+
+          phone:
+            phone.trim() ||
+            null,
+
+          whatsapp:
+            whatsapp.trim() ||
+            null,
+
+          email:
+            email.trim() ||
+            null,
+
+          website:
+            website.trim() ||
+            null,
+
+          country,
+
+          state:
+            businessState,
+
+          city:
+            city.trim(),
+
+          address:
+            address.trim(),
+
+          latitude,
+          longitude,
+
+          status: "Active",
+        },
+      ])
+      .select()
+      .single();
+
+    if (businessError) {
+      console.error(
+        "CREATE BUSINESS ERROR:",
+        businessError
+      );
+
+      throw businessError;
     }
 
-    try {
-      setSaving(true);
+    const businessId =
+      business.id;
+
+    /*
+    -----------------------------------
+    MEDIA URLS
+    -----------------------------------
+    */
+
+    let logoUrl:
+      string | null = null;
+
+    let coverUrl:
+      string | null = null;
+
+    let promoVideoUrl:
+      string | null = null;
+
+    /*
+    -----------------------------------
+    UPLOAD LOGO
+    -----------------------------------
+    */
+
+    if (logoFile) {
+      setMediaMessage(
+        "Uploading business logo..."
+      );
+
+      const extension =
+        logoFile.name
+          .split(".")
+          .pop() ||
+        "jpg";
+
+      const path =
+        `${user.id}/${businessId}/logo/` +
+        `${crypto.randomUUID()}.${extension}`;
 
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        alert("You must be logged in to register a business.");
-        router.push("/login");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("businesses")
-        .insert([
+        error: uploadError,
+      } = await supabase.storage
+        .from("business-images")
+        .upload(
+          path,
+          logoFile,
           {
-            user_id: user.id,
+            cacheControl: "3600",
+            upsert: false,
+          }
+        );
 
-            business_name: businessName.trim(),
-            category,
-            description: description.trim() || null,
+      if (uploadError) {
+        console.error(
+          "LOGO UPLOAD ERROR:",
+          uploadError
+        );
 
-            phone: phone.trim() || null,
-            whatsapp: whatsapp.trim() || null,
-            email: email.trim() || null,
-            website: website.trim() || null,
-
-            country,
-            state: businessState,
-            city: city.trim(),
-            address: address.trim(),
-
-            latitude,
-            longitude,
-
-            status: "Active",
-          },
-        ])
-        .select()
-        .single();
-
-      if (error) {
-        console.error("REGISTER BUSINESS ERROR:", error);
-        throw error;
+        throw uploadError;
       }
 
-      alert("Business registered successfully.");
+      const {
+        data: publicData,
+      } = supabase.storage
+        .from("business-images")
+        .getPublicUrl(path);
 
-      router.push(`/dashboard/businesses`);
-    } catch (error: any) {
-      console.error("REGISTER BUSINESS ERROR:", error);
-
-      alert(
-        error?.message ||
-          "Unable to register business."
-      );
-    } finally {
-      setSaving(false);
+      logoUrl =
+        publicData.publicUrl;
     }
+
+    /*
+    -----------------------------------
+    UPLOAD COVER
+    -----------------------------------
+    */
+
+    if (coverFile) {
+      setMediaMessage(
+        "Uploading cover image..."
+      );
+
+      const extension =
+        coverFile.name
+          .split(".")
+          .pop() ||
+        "jpg";
+
+      const path =
+        `${user.id}/${businessId}/cover/` +
+        `${crypto.randomUUID()}.${extension}`;
+
+      const {
+        error: uploadError,
+      } = await supabase.storage
+        .from("business-images")
+        .upload(
+          path,
+          coverFile,
+          {
+            cacheControl: "3600",
+            upsert: false,
+          }
+        );
+
+      if (uploadError) {
+        console.error(
+          "COVER UPLOAD ERROR:",
+          uploadError
+        );
+
+        throw uploadError;
+      }
+
+      const {
+        data: publicData,
+      } = supabase.storage
+        .from("business-images")
+        .getPublicUrl(path);
+
+      coverUrl =
+        publicData.publicUrl;
+    }
+
+    /*
+    -----------------------------------
+    UPLOAD GALLERY
+    -----------------------------------
+    */
+
+    if (
+      galleryFiles.length >
+      0
+    ) {
+      setMediaMessage(
+        "Uploading gallery images..."
+      );
+
+      const galleryRows: {
+        business_id: number;
+        image_url: string;
+        sort_order: number;
+      }[] = [];
+
+      for (
+        let index = 0;
+        index <
+        galleryFiles.length;
+        index++
+      ) {
+        const file =
+          galleryFiles[index];
+
+        const extension =
+          file.name
+            .split(".")
+            .pop() ||
+          "jpg";
+
+        const path =
+          `${user.id}/${businessId}/gallery/` +
+          `${crypto.randomUUID()}.${extension}`;
+
+        const {
+          error: uploadError,
+        } = await supabase.storage
+          .from(
+            "business-images"
+          )
+          .upload(
+            path,
+            file,
+            {
+              cacheControl:
+                "3600",
+
+              upsert: false,
+            }
+          );
+
+        if (uploadError) {
+          console.error(
+            "GALLERY UPLOAD ERROR:",
+            uploadError
+          );
+
+          throw uploadError;
+        }
+
+        const {
+          data: publicData,
+        } = supabase.storage
+          .from(
+            "business-images"
+          )
+          .getPublicUrl(path);
+
+        galleryRows.push({
+          business_id:
+            businessId,
+
+          image_url:
+            publicData.publicUrl,
+
+          sort_order:
+            index,
+        });
+      }
+
+      const {
+        error:
+          galleryInsertError,
+      } = await supabase
+        .from(
+          "business_images"
+        )
+        .insert(
+          galleryRows
+        );
+
+      if (
+        galleryInsertError
+      ) {
+        console.error(
+          "GALLERY DATABASE ERROR:",
+          galleryInsertError
+        );
+
+        throw galleryInsertError;
+      }
+    }
+
+    /*
+    -----------------------------------
+    UPLOAD PROMO VIDEO
+    -----------------------------------
+    */
+
+    if (videoFile) {
+      setMediaMessage(
+        "Uploading promotional video..."
+      );
+
+      const extension =
+        videoFile.name
+          .split(".")
+          .pop() ||
+        "mp4";
+
+      const path =
+        `${user.id}/${businessId}/promo/` +
+        `${crypto.randomUUID()}.${extension}`;
+
+      const {
+        error: uploadError,
+      } = await supabase.storage
+        .from("business-videos")
+        .upload(
+          path,
+          videoFile,
+          {
+            cacheControl: "3600",
+            upsert: false,
+          }
+        );
+
+      if (uploadError) {
+        console.error(
+          "VIDEO UPLOAD ERROR:",
+          uploadError
+        );
+
+        throw uploadError;
+      }
+
+      const {
+        data: publicData,
+      } = supabase.storage
+        .from("business-videos")
+        .getPublicUrl(path);
+
+      promoVideoUrl =
+        publicData.publicUrl;
+    }
+
+    /*
+    -----------------------------------
+    SAVE MEDIA URLS
+    -----------------------------------
+    */
+
+    setMediaMessage(
+      "Saving business media..."
+    );
+
+    const {
+      error: mediaUpdateError,
+    } = await supabase
+      .from("businesses")
+      .update({
+        logo_url:
+          logoUrl,
+
+        cover_image_url:
+          coverUrl,
+
+        promo_video_url:
+          promoVideoUrl,
+
+        promo_video_duration:
+          videoFile
+            ? videoDuration
+            : null,
+      })
+      .eq(
+        "id",
+        businessId
+      )
+      .eq(
+        "user_id",
+        user.id
+      );
+
+    if (mediaUpdateError) {
+      console.error(
+        "BUSINESS MEDIA UPDATE ERROR:",
+        mediaUpdateError
+      );
+
+      throw mediaUpdateError;
+    }
+
+    /*
+    -----------------------------------
+    COMPLETE
+    -----------------------------------
+    */
+
+    setMediaMessage(
+      "Business registered successfully."
+    );
+
+    alert(
+      "Business registered successfully."
+    );
+
+    router.push(
+      `/dashboard/businesses`
+    );
+  } catch (error: any) {
+    console.error(
+      "REGISTER BUSINESS ERROR:",
+      error
+    );
+
+    setMediaMessage("");
+
+    alert(
+      error?.message ||
+        "Unable to register business."
+    );
+  } finally {
+    setSaving(false);
   }
+}
 
   const hasCoordinates =
     latitude !== null &&
@@ -280,15 +901,14 @@ export default function RegisterBusinessPage() {
                   <option value="">
                     Select Category
                   </option>
-
-                  {categories.map((item) => (
-                    <option
-                      key={item}
-                      value={item}
-                    >
-                      {item}
-                    </option>
-                  ))}
+{BUSINESS_CATEGORIES.map((item) => (
+  <option
+    key={item}
+    value={item}
+  >
+    {item}
+  </option>
+))}
                 </select>
               </div>
 
@@ -564,6 +1184,162 @@ export default function RegisterBusinessPage() {
             </div>
 
           </section>
+
+{/* BUSINESS MEDIA */}
+
+<section className="border-t border-gray-100 pt-8">
+
+  <h2 className="text-2xl font-bold text-[#0B1F3A]">
+    Business Media
+  </h2>
+
+  <p className="text-gray-500 mt-2">
+    Add your logo, cover image, gallery photos and one short promotional video.
+  </p>
+
+  {/* LOGO + COVER */}
+
+  <div className="grid md:grid-cols-2 gap-6 mt-6">
+
+    <div>
+      <label className="block mb-2 font-semibold text-[#0B1F3A]">
+        Business Logo
+      </label>
+
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleLogoSelection}
+        className={inputClass}
+      />
+
+      <p className="text-xs text-gray-400 mt-2">
+        Maximum 10 MB.
+      </p>
+
+      {logoPreview && (
+        <div className="mt-4 w-32 h-32 rounded-2xl overflow-hidden border border-gray-200 bg-gray-50">
+          <img
+            src={logoPreview}
+            alt="Business logo preview"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+    </div>
+
+    <div>
+      <label className="block mb-2 font-semibold text-[#0B1F3A]">
+        Cover Image
+      </label>
+
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleCoverSelection}
+        className={inputClass}
+      />
+
+      <p className="text-xs text-gray-400 mt-2">
+        Maximum 10 MB.
+      </p>
+
+      {coverPreview && (
+        <div className="mt-4 w-full h-40 rounded-2xl overflow-hidden border border-gray-200 bg-gray-50">
+          <img
+            src={coverPreview}
+            alt="Business cover preview"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+    </div>
+
+  </div>
+
+  {/* GALLERY */}
+
+  <div className="mt-8">
+
+    <label className="block mb-2 font-semibold text-[#0B1F3A]">
+      Gallery Images
+    </label>
+
+    <input
+      type="file"
+      accept="image/*"
+      multiple
+      onChange={handleGallerySelection}
+      className={inputClass}
+    />
+
+    <p className="text-xs text-gray-400 mt-2">
+      Maximum 8 images. Each image must be 10 MB or less.
+    </p>
+
+    {galleryPreviews.length > 0 && (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+        {galleryPreviews.map((preview, index) => (
+          <div
+            key={preview}
+            className="relative h-28 rounded-xl overflow-hidden border border-gray-200 bg-gray-50"
+          >
+            <img
+              src={preview}
+              alt={`Gallery preview ${index + 1}`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
+      </div>
+    )}
+
+  </div>
+
+  {/* PROMO VIDEO */}
+
+  <div className="mt-8">
+
+    <label className="block mb-2 font-semibold text-[#0B1F3A]">
+      Promotional Video
+    </label>
+
+    <input
+      type="file"
+      accept="video/*"
+      onChange={handleVideoSelection}
+      className={inputClass}
+    />
+
+    <p className="text-xs text-gray-400 mt-2">
+      One video only. Maximum 60 seconds and 100 MB.
+    </p>
+
+    {mediaMessage && (
+      <p className="text-sm text-green-700 font-semibold mt-3">
+        {mediaMessage}
+      </p>
+    )}
+
+    {videoPreview && (
+      <div className="mt-4">
+        <video
+          src={videoPreview}
+          controls
+          className="w-full max-w-2xl rounded-2xl bg-black"
+        />
+
+        {videoDuration !== null && (
+          <p className="text-sm text-gray-500 mt-2">
+            Duration: {videoDuration} seconds
+          </p>
+        )}
+      </div>
+    )}
+
+  </div>
+
+</section>
 
           {/* PLATFORM NOTE */}
 

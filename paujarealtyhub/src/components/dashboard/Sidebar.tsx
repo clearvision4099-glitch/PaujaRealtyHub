@@ -7,37 +7,26 @@ import { supabase } from "@/lib/supabase";
 
 export default function Sidebar() {
   const [isAdmin, setIsAdmin] = useState(false);
-  const [checkingAdmin, setCheckingAdmin] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-
-    async function loadAdminStatus(userId?: string) {
+    async function checkAdmin() {
       try {
-        setCheckingAdmin(true);
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-        let resolvedUserId = userId;
-
-        if (!resolvedUserId) {
-          const {
-            data: { user },
-          } = await supabase.auth.getUser();
-
-          resolvedUserId = user?.id;
-        }
-
-        if (!resolvedUserId) {
-          if (mounted) {
-            setIsAdmin(false);
-          }
-
+        if (!user) {
+          setIsAdmin(false);
           return;
         }
 
-        const { data, error } = await supabase
+        const {
+          data: profile,
+          error,
+        } = await supabase
           .from("profiles")
           .select("is_admin")
-          .eq("id", resolvedUserId)
+          .eq("id", user.id)
           .maybeSingle();
 
         if (error) {
@@ -46,72 +35,24 @@ export default function Sidebar() {
             error
           );
 
-          if (mounted) {
-            setIsAdmin(false);
-          }
-
+          setIsAdmin(false);
           return;
         }
 
-        if (mounted) {
-          setIsAdmin(
-            data?.is_admin === true
-          );
-        }
+        setIsAdmin(
+          Boolean(profile?.is_admin)
+        );
       } catch (error) {
         console.error(
-          "SIDEBAR ADMIN STATUS ERROR:",
+          "SIDEBAR ADMIN CHECK ERROR:",
           error
         );
 
-        if (mounted) {
-          setIsAdmin(false);
-        }
-      } finally {
-        if (mounted) {
-          setCheckingAdmin(false);
-        }
+        setIsAdmin(false);
       }
     }
 
-    /*
-    -----------------------------------
-    INITIAL ADMIN CHECK
-    -----------------------------------
-    */
-
-    loadAdminStatus();
-
-    /*
-    -----------------------------------
-    WATCH AUTH SESSION CHANGES
-    -----------------------------------
-    */
-
-    const {
-      data: { subscription },
-    } =
-      supabase.auth.onAuthStateChange(
-        (_event, session) => {
-          if (!session?.user) {
-            if (mounted) {
-              setIsAdmin(false);
-              setCheckingAdmin(false);
-            }
-
-            return;
-          }
-
-          loadAdminStatus(
-            session.user.id
-          );
-        }
-      );
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    checkAdmin();
   }, []);
 
   return (
@@ -196,21 +137,26 @@ export default function Sidebar() {
           ⚙️ Settings
         </Link>
 
-        {/* ADMIN */}
+        {/* ADMIN ONLY */}
 
-        {!checkingAdmin &&
-          isAdmin && (
+        {isAdmin && (
+          <>
+
+            <div className="border-t border-white/10 my-4" />
+
             <Link
               href="/admin"
-              className="block px-4 py-3 rounded-xl bg-[#C9A227]/20 text-[#E7C95C] border border-[#C9A227]/40 hover:bg-[#C9A227]/30 transition"
+              className="block px-4 py-3 rounded-xl bg-[#C9A227]/10 border border-[#C9A227]/30 text-[#C9A227] font-bold hover:bg-[#C9A227] hover:text-[#08192E] transition"
             >
-              🛡️ Admin
+              🛡️ Admin Panel
             </Link>
-          )}
+
+          </>
+        )}
 
       </nav>
 
-      {/* MARKETPLACE */}
+      {/* PUBLIC PROPERTY LINK */}
 
       <div className="mt-10 border-t border-white/10 pt-6">
 

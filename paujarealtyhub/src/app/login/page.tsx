@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 import { loginUser } from "@/services/auth";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,64 +19,138 @@ export default function LoginPage() {
   ) => {
     e.preventDefault();
 
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const { error } = await loginUser(email, password);
+      const { error } = await loginUser(
+        email,
+        password
+      );
 
-    setLoading(false);
+      if (error) {
+        alert(error.message);
+        return;
+      }
 
-    if (error) {
-      alert(error.message);
-      return;
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        console.error(
+          "LOGIN USER ERROR:",
+          userError
+        );
+      }
+
+      if (!user) {
+        alert(
+          "Login succeeded, but your account could not be loaded."
+        );
+
+        return;
+      }
+
+      const {
+        data: profile,
+        error: profileError,
+      } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error(
+          "LOGIN PROFILE ERROR:",
+          profileError
+        );
+      }
+
+      alert("Login successful!");
+
+      if (profile?.is_admin) {
+        router.push("/admin");
+        router.refresh();
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch (error: any) {
+      console.error(
+        "LOGIN ERROR:",
+        error
+      );
+
+      alert(
+        error?.message ||
+          "Unable to log in."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    alert("Login successful!");
-
-    router.push("/dashboard");
   };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center px-6">
+
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
 
         <div className="text-center mb-8">
+
           <h1 className="text-4xl font-bold text-blue-700">
             PaujaRealtyHub
           </h1>
 
           <p className="text-gray-500 mt-3">
-  Sign in to continue
-</p>
+            Sign in to continue
+          </p>
+
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form
+          onSubmit={handleLogin}
+          className="space-y-5"
+        >
 
           <div>
+
             <label className="block mb-2 font-medium">
               Email Address
             </label>
 
             <input
               type="email"
+              required
               placeholder="Enter your email address"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
               className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
+
           </div>
 
           <div>
+
             <label className="block mb-2 font-medium">
               Password
             </label>
 
             <input
               type="password"
+              required
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
               className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
+
           </div>
 
           <div className="flex justify-between items-center text-sm">
@@ -83,12 +159,13 @@ export default function LoginPage() {
               <input type="checkbox" />
               Remember Me
             </label>
+
             <Link
-  href="/forgot-password"
-  className="text-blue-700 hover:underline"
->
-  Forgot Password?
-</Link>
+              href="/forgot-password"
+              className="text-blue-700 hover:underline"
+            >
+              Forgot Password?
+            </Link>
 
           </div>
 
@@ -97,13 +174,16 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-blue-700 hover:bg-blue-800 transition text-white py-3 rounded-lg font-semibold disabled:opacity-50"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading
+              ? "Logging in..."
+              : "Login"}
           </button>
 
         </form>
 
         <p className="text-center mt-6 text-gray-600">
           Don't have an account?{" "}
+
           <Link
             href="/register"
             className="text-blue-700 font-semibold hover:underline"
@@ -113,6 +193,7 @@ export default function LoginPage() {
         </p>
 
       </div>
+
     </main>
   );
 }
