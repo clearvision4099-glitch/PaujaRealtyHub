@@ -11,6 +11,7 @@ type AdminStats = {
   properties: number;
   publishedProperties: number;
   businesses: number;
+  newSupportMessages: number;
 };
 
 export default function AdminPage() {
@@ -28,6 +29,7 @@ export default function AdminPage() {
       properties: 0,
       publishedProperties: 0,
       businesses: 0,
+      newSupportMessages: 0,
     });
 
   useEffect(() => {
@@ -86,6 +88,7 @@ export default function AdminPage() {
       propertiesResult,
       publishedResult,
       businessesResult,
+      supportResult,
     ] = await Promise.all([
       supabase
         .from("profiles")
@@ -115,6 +118,14 @@ export default function AdminPage() {
           count: "exact",
           head: true,
         }),
+
+      supabase
+        .from("support_messages")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .eq("status", "New"),
     ]);
 
     setStats({
@@ -129,6 +140,9 @@ export default function AdminPage() {
 
       businesses:
         businessesResult.count || 0,
+
+      newSupportMessages:
+        supportResult.count || 0,
     });
   }
 
@@ -174,7 +188,8 @@ export default function AdminPage() {
             </h1>
 
             <p className="text-gray-300 mt-2">
-              Manage the platform, users, listings and businesses.
+              Manage the platform, users, listings,
+              businesses and support enquiries.
             </p>
 
           </div>
@@ -194,7 +209,7 @@ export default function AdminPage() {
 
         {/* STATS */}
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
 
           <StatCard
             title="Users / Agents"
@@ -224,6 +239,14 @@ export default function AdminPage() {
             icon="🏢"
           />
 
+          <StatCard
+            title="New Support"
+            value={
+              stats.newSupportMessages
+            }
+            icon="📬"
+          />
+
         </div>
 
         {/* ADMIN TOOLS */}
@@ -242,7 +265,7 @@ export default function AdminPage() {
 
           </div>
 
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
 
             <AdminCard
               title="Users & Agents"
@@ -253,16 +276,34 @@ export default function AdminPage() {
 
             <AdminCard
               title="Properties"
-              description="Review every property listing and control publication status."
+              description="Review property listings and control publication status."
               href="/admin/properties"
               icon="🏠"
             />
 
             <AdminCard
               title="Businesses"
-              description="Manage hotels and other businesses registered on Pauja."
+              description="Review, approve and manage businesses registered on Pauja."
               href="/admin/businesses"
               icon="🏢"
+            />
+
+            <AdminCard
+              title="Support Inbox"
+              description={
+                stats.newSupportMessages > 0
+                  ? `${stats.newSupportMessages} new support ${
+                      stats.newSupportMessages === 1
+                        ? "message"
+                        : "messages"
+                    } waiting for management.`
+                  : "Review enquiries and messages sent to PaujaRealtyHub management."
+              }
+              href="/admin/support"
+              icon="📬"
+              badge={
+                stats.newSupportMessages
+              }
             />
 
           </div>
@@ -278,7 +319,11 @@ export default function AdminPage() {
           </p>
 
           <p className="text-gray-500 mt-2 leading-6">
-            This first admin version focuses on platform oversight, users, properties and businesses. More advanced moderation, verification and revenue tools can be added after launch.
+            This admin version provides platform oversight
+            for users, properties, businesses and management
+            support enquiries. Advanced moderation,
+            verification, revenue tools and two-way support
+            conversations can be added in later versions.
           </p>
 
         </div>
@@ -322,17 +367,25 @@ function AdminCard({
   description,
   href,
   icon,
+  badge = 0,
 }: {
   title: string;
   description: string;
   href: string;
   icon: string;
+  badge?: number;
 }) {
   return (
     <Link
       href={href}
-      className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 hover:shadow-lg hover:-translate-y-1 transition"
+      className="relative bg-white border border-gray-100 rounded-2xl shadow-sm p-6 hover:shadow-lg hover:-translate-y-1 transition"
     >
+
+      {badge > 0 && (
+        <div className="absolute top-4 right-4 min-w-7 h-7 px-2 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center">
+          {badge}
+        </div>
+      )}
 
       <div className="w-12 h-12 rounded-xl bg-[#C9A227]/15 text-2xl flex items-center justify-center">
         {icon}
