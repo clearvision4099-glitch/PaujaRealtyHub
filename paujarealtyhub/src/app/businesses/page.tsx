@@ -1,10 +1,12 @@
 "use client";
+
 import {
   Suspense,
   useEffect,
   useMemo,
   useState,
 } from "react";
+
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -28,13 +30,52 @@ type Business = {
 function BusinessesContent() {
   const searchParams = useSearchParams();
 
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [businesses, setBusinesses] =
+    useState<Business[]>([]);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [locationTerm, setLocationTerm] = useState("");
+  const [loading, setLoading] =
+    useState(true);
+
+  const [errorMessage, setErrorMessage] =
+    useState("");
+
+  // WHAT USER IS CURRENTLY TYPING
+
+  const [searchTerm, setSearchTerm] =
+    useState("");
+
+  const [
+    selectedCategory,
+    setSelectedCategory,
+  ] = useState("");
+
+  const [
+    locationTerm,
+    setLocationTerm,
+  ] = useState("");
+
+  // WHAT HAS ACTUALLY BEEN SEARCHED
+
+  const [
+    appliedSearchTerm,
+    setAppliedSearchTerm,
+  ] = useState("");
+
+  const [
+    appliedCategory,
+    setAppliedCategory,
+  ] = useState("");
+
+  const [
+    appliedLocation,
+    setAppliedLocation,
+  ] = useState("");
+
+  /*
+  -----------------------------------
+  READ FILTERS FROM PROPERTY PAGE
+  -----------------------------------
+  */
 
   useEffect(() => {
     const category =
@@ -45,7 +86,19 @@ function BusinessesContent() {
 
     setSelectedCategory(category);
     setLocationTerm(location);
+
+    // Automatically apply filters
+    // when arriving from a property page.
+
+    setAppliedCategory(category);
+    setAppliedLocation(location);
   }, [searchParams]);
+
+  /*
+  -----------------------------------
+  LOAD ACTIVE BUSINESSES
+  -----------------------------------
+  */
 
   useEffect(() => {
     async function loadBusinesses() {
@@ -53,23 +106,24 @@ function BusinessesContent() {
         setLoading(true);
         setErrorMessage("");
 
-        const { data, error } = await supabase
-          .from("businesses")
-          .select(`
-            id,
-            business_name,
-            category,
-            description,
-            city,
-            state,
-            status,
-            logo_url,
-            cover_image_url
-          `)
-          .eq("status", "Active")
-          .order("created_at", {
-            ascending: false,
-          });
+        const { data, error } =
+          await supabase
+            .from("businesses")
+            .select(`
+              id,
+              business_name,
+              category,
+              description,
+              city,
+              state,
+              status,
+              logo_url,
+              cover_image_url
+            `)
+            .eq("status", "Active")
+            .order("created_at", {
+              ascending: false,
+            });
 
         if (error) {
           console.error(
@@ -102,64 +156,106 @@ function BusinessesContent() {
     loadBusinesses();
   }, []);
 
-  const filteredBusinesses = useMemo(() => {
-    const keyword =
-      searchTerm.trim().toLowerCase();
+  /*
+  -----------------------------------
+  SEARCH
+  -----------------------------------
+  */
 
-    const location =
-      locationTerm.trim().toLowerCase();
+  function handleSearch(
+    event?: React.FormEvent
+  ) {
+    event?.preventDefault();
 
-    return businesses.filter((business) => {
-      const matchesKeyword =
-        !keyword ||
-        business.business_name
-          .toLowerCase()
-          .includes(keyword) ||
-        (business.category || "")
-          .toLowerCase()
-          .includes(keyword) ||
-        (business.description || "")
-          .toLowerCase()
-          .includes(keyword);
-
-      const matchesCategory =
-        !selectedCategory ||
-        (business.category || "")
-          .toLowerCase() ===
-          selectedCategory.toLowerCase();
-
-      const matchesLocation =
-        !location ||
-        (business.city || "")
-          .toLowerCase()
-          .includes(location) ||
-        (business.state || "")
-          .toLowerCase()
-          .includes(location);
-
-      return (
-        matchesKeyword &&
-        matchesCategory &&
-        matchesLocation
-      );
-    });
-  }, [
-    businesses,
-    searchTerm,
-    selectedCategory,
-    locationTerm,
-  ]);
+    setAppliedSearchTerm(searchTerm);
+    setAppliedCategory(selectedCategory);
+    setAppliedLocation(locationTerm);
+  }
 
   function clearFilters() {
     setSearchTerm("");
     setSelectedCategory("");
     setLocationTerm("");
+
+    setAppliedSearchTerm("");
+    setAppliedCategory("");
+    setAppliedLocation("");
   }
+
+  /*
+  -----------------------------------
+  FILTER BUSINESSES
+  -----------------------------------
+  */
+
+  const filteredBusinesses =
+    useMemo(() => {
+      const keyword =
+        appliedSearchTerm
+          .trim()
+          .toLowerCase();
+
+      const location =
+        appliedLocation
+          .trim()
+          .toLowerCase();
+
+      return businesses.filter(
+        (business) => {
+          const matchesKeyword =
+            !keyword ||
+            business.business_name
+              .toLowerCase()
+              .includes(keyword) ||
+            (business.category || "")
+              .toLowerCase()
+              .includes(keyword) ||
+            (business.description || "")
+              .toLowerCase()
+              .includes(keyword) ||
+            (business.city || "")
+              .toLowerCase()
+              .includes(keyword) ||
+            (business.state || "")
+              .toLowerCase()
+              .includes(keyword);
+
+          const matchesCategory =
+            !appliedCategory ||
+            (business.category || "")
+              .toLowerCase() ===
+              appliedCategory.toLowerCase();
+
+          const matchesLocation =
+            !location ||
+            (business.city || "")
+              .toLowerCase()
+              .includes(location) ||
+            (business.state || "")
+              .toLowerCase()
+              .includes(location);
+
+          return (
+            matchesKeyword &&
+            matchesCategory &&
+            matchesLocation
+          );
+        }
+      );
+    }, [
+      businesses,
+      appliedSearchTerm,
+      appliedCategory,
+      appliedLocation,
+    ]);
 
   const hasFilters =
     searchTerm.trim() ||
     selectedCategory ||
-    locationTerm.trim();
+    locationTerm.trim() ||
+    appliedSearchTerm.trim() ||
+    appliedCategory ||
+    appliedLocation.trim();
 
   return (
     <>
@@ -170,11 +266,13 @@ function BusinessesContent() {
         {/* HERO */}
 
         <section className="bg-[#08192E] text-white">
+
           <div className="max-w-7xl mx-auto px-4 md:px-6 py-14 md:py-20">
 
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
 
               <div>
+
                 <span className="text-[#C9A227] text-sm font-bold uppercase tracking-widest">
                   Pauja Business Ecosystem
                 </span>
@@ -188,6 +286,7 @@ function BusinessesContent() {
                   property, construction, hospitality and everyday
                   services across Nigeria.
                 </p>
+
               </div>
 
               <Link
@@ -200,19 +299,24 @@ function BusinessesContent() {
             </div>
 
           </div>
+
         </section>
 
         {/* SEARCH */}
 
         <section className="max-w-7xl mx-auto px-4 md:px-6">
 
-          <div className="bg-white border border-gray-100 shadow-lg rounded-2xl p-5 md:p-6 -mt-7 relative z-10">
+          <form
+            onSubmit={handleSearch}
+            className="bg-white border border-gray-100 shadow-lg rounded-2xl p-5 md:p-6 -mt-7 relative z-10"
+          >
 
             <div className="grid md:grid-cols-3 gap-4">
 
               {/* KEYWORD */}
 
               <div>
+
                 <label className="block text-sm font-bold text-[#0B1F3A] mb-2">
                   What do you need?
                 </label>
@@ -221,16 +325,20 @@ function BusinessesContent() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) =>
-                    setSearchTerm(e.target.value)
+                    setSearchTerm(
+                      e.target.value
+                    )
                   }
-                  placeholder="e.g. Surveyor, builder, hotel..."
+                  placeholder="Business, service or keyword..."
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#0B1F3A] bg-[#FAFAF8] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
                 />
+
               </div>
 
               {/* CATEGORY */}
 
               <div>
+
                 <label className="block text-sm font-bold text-[#0B1F3A] mb-2">
                   Service Category
                 </label>
@@ -260,11 +368,13 @@ function BusinessesContent() {
                   )}
 
                 </select>
+
               </div>
 
               {/* LOCATION */}
 
               <div>
+
                 <label className="block text-sm font-bold text-[#0B1F3A] mb-2">
                   Where?
                 </label>
@@ -280,43 +390,55 @@ function BusinessesContent() {
                   placeholder="e.g. Lagos, Ikeja, Abuja..."
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#0B1F3A] bg-[#FAFAF8] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
                 />
+
               </div>
 
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-5">
+            {/* SEARCH ACTIONS */}
 
-              <p className="text-sm text-gray-500">
-                {!loading && (
-                  <>
-                    Showing{" "}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-5">
 
-                    <strong className="text-[#0B1F3A]">
-                      {
-                        filteredBusinesses.length
-                      }
-                    </strong>{" "}
+              <div className="flex flex-col sm:flex-row gap-3">
 
-                    {filteredBusinesses.length === 1
-                      ? "business"
-                      : "businesses"}
-                  </>
-                )}
-              </p>
-
-              {hasFilters && (
                 <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="self-start sm:self-auto text-sm font-semibold text-[#8B6C16] hover:text-[#0B1F3A] transition"
+                  type="submit"
+                  className="bg-[#C9A227] text-[#08192E] px-7 py-3 rounded-xl font-bold hover:brightness-110 transition"
                 >
-                  Clear Filters
+                  🔍 Search Businesses
                 </button>
+
+                {hasFilters && (
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="border border-gray-300 text-[#0B1F3A] px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition"
+                  >
+                    Clear Filters
+                  </button>
+                )}
+
+              </div>
+
+              {!loading && (
+                <p className="text-sm text-gray-500">
+
+                  Showing{" "}
+
+                  <strong className="text-[#0B1F3A]">
+                    {filteredBusinesses.length}
+                  </strong>{" "}
+
+                  {filteredBusinesses.length === 1
+                    ? "business"
+                    : "businesses"}
+
+                </p>
               )}
 
             </div>
 
-          </div>
+          </form>
 
         </section>
 
@@ -324,19 +446,28 @@ function BusinessesContent() {
 
         <section className="max-w-7xl mx-auto px-4 md:px-6 py-10">
 
+          {/* LOADING */}
+
           {loading && (
             <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center">
+
               <p className="text-gray-500">
                 Loading businesses...
               </p>
+
             </div>
           )}
 
-          {!loading && errorMessage && (
-            <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6">
-              {errorMessage}
-            </div>
-          )}
+          {/* ERROR */}
+
+          {!loading &&
+            errorMessage && (
+              <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6">
+                {errorMessage}
+              </div>
+            )}
+
+          {/* NO BUSINESSES */}
 
           {!loading &&
             !errorMessage &&
@@ -348,7 +479,7 @@ function BusinessesContent() {
                 </h2>
 
                 <p className="text-gray-500 mt-3">
-                  Registered businesses will appear here.
+                  Approved businesses will appear here.
                 </p>
 
                 <Link
@@ -361,10 +492,13 @@ function BusinessesContent() {
               </div>
             )}
 
+          {/* NO SEARCH RESULT */}
+
           {!loading &&
             !errorMessage &&
             businesses.length > 0 &&
-            filteredBusinesses.length === 0 && (
+            filteredBusinesses.length ===
+              0 && (
               <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
 
                 <div className="text-4xl">
@@ -376,13 +510,13 @@ function BusinessesContent() {
                 </h2>
 
                 <p className="text-gray-500 mt-3">
-                  No registered business currently matches
-                  this service and location.
+                  No approved business currently matches
+                  your search.
                 </p>
 
                 <p className="text-gray-400 text-sm mt-2">
-                  Try another service, location, or browse
-                  all registered businesses.
+                  Try another business name, service,
+                  category or location.
                 </p>
 
                 <button
@@ -396,17 +530,24 @@ function BusinessesContent() {
               </div>
             )}
 
+          {/* BUSINESS CARDS */}
+
           {!loading &&
             !errorMessage &&
-            filteredBusinesses.length > 0 && (
+            filteredBusinesses.length >
+              0 && (
+
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-7">
 
                 {filteredBusinesses.map(
                   (business) => (
+
                     <article
                       key={business.id}
                       className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-lg transition"
                     >
+
+                      {/* COVER */}
 
                       <div className="h-48 bg-gray-100 overflow-hidden">
 
@@ -428,9 +569,13 @@ function BusinessesContent() {
 
                       </div>
 
+                      {/* CARD */}
+
                       <div className="p-6">
 
                         <div className="flex items-start gap-4">
+
+                          {/* LOGO */}
 
                           {business.logo_url ? (
                             <img
@@ -449,10 +594,8 @@ function BusinessesContent() {
                           <div className="min-w-0">
 
                             <p className="text-xs uppercase tracking-wider font-bold text-[#B8922E]">
-                              {
-                                business.category ||
-                                "Business"
-                              }
+                              {business.category ||
+                                "Business"}
                             </p>
 
                             <h2 className="text-xl font-bold text-[#0B1F3A] mt-1">
@@ -462,6 +605,7 @@ function BusinessesContent() {
                             </h2>
 
                             <p className="text-sm text-gray-500 mt-1">
+
                               {[
                                 business.city,
                                 business.state,
@@ -469,6 +613,7 @@ function BusinessesContent() {
                                 .filter(Boolean)
                                 .join(", ") ||
                                 "Location not supplied"}
+
                             </p>
 
                           </div>
@@ -507,18 +652,23 @@ function BusinessesContent() {
     </>
   );
 }
+
 export default function PublicBusinessesPage() {
   return (
     <Suspense
       fallback={
         <main className="min-h-screen bg-[#F7F7F3] flex items-center justify-center">
+
           <div className="text-center">
+
             <div className="w-12 h-12 border-4 border-gray-200 border-t-[#C9A227] rounded-full animate-spin mx-auto" />
 
             <p className="text-gray-500 mt-5">
               Loading businesses...
             </p>
+
           </div>
+
         </main>
       }
     >
