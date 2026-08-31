@@ -449,7 +449,7 @@ function handleVideoSelection(
           latitude,
           longitude,
 
-          status: "Active",
+          status: "Pending"
         },
       ])
       .select()
