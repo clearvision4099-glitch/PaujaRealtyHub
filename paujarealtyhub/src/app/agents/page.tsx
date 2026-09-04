@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -13,6 +13,12 @@ export default function AgentsPage() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [nameTerm, setNameTerm] = useState("");
+  const [locationTerm, setLocationTerm] = useState("");
+
+  const [appliedNameTerm, setAppliedNameTerm] = useState("");
+  const [appliedLocationTerm, setAppliedLocationTerm] = useState("");
+
   useEffect(() => {
     loadAgents();
   }, []);
@@ -22,7 +28,6 @@ export default function AgentsPage() {
       setLoading(true);
       setErrorMessage("");
 
-      // Get all published properties
       const {
         data: properties,
         error: propertiesError,
@@ -35,7 +40,6 @@ export default function AgentsPage() {
         throw propertiesError;
       }
 
-      // Count published properties belonging to each user
       const listingCounts: Record<string, number> = {};
 
       (properties || []).forEach((property) => {
@@ -52,7 +56,6 @@ export default function AgentsPage() {
         return;
       }
 
-      // Load profiles belonging to users with published listings
       const {
         data: profiles,
         error: profilesError,
@@ -94,6 +97,86 @@ export default function AgentsPage() {
     }
   }
 
+  function handleSearch(
+    event?: React.FormEvent
+  ) {
+    event?.preventDefault();
+
+    setAppliedNameTerm(nameTerm.trim());
+    setAppliedLocationTerm(
+      locationTerm.trim()
+    );
+  }
+
+  function clearSearch() {
+    setNameTerm("");
+    setLocationTerm("");
+
+    setAppliedNameTerm("");
+    setAppliedLocationTerm("");
+  }
+
+  const filteredAgents = useMemo(() => {
+    const nameKeyword =
+      appliedNameTerm
+        .trim()
+        .toLowerCase();
+
+    const locationKeyword =
+      appliedLocationTerm
+        .trim()
+        .toLowerCase();
+
+    return agents.filter((agent) => {
+      const displayName =
+        agent.agent_name ||
+        agent.full_name ||
+        "";
+
+      const agencyName =
+        agent.agency_name || "";
+
+      const city =
+        agent.city || "";
+
+      const state =
+        agent.state || "";
+
+      const matchesName =
+        !nameKeyword ||
+        displayName
+          .toLowerCase()
+          .includes(nameKeyword) ||
+        agencyName
+          .toLowerCase()
+          .includes(nameKeyword);
+
+      const matchesLocation =
+        !locationKeyword ||
+        city
+          .toLowerCase()
+          .includes(locationKeyword) ||
+        state
+          .toLowerCase()
+          .includes(locationKeyword);
+
+      return (
+        matchesName &&
+        matchesLocation
+      );
+    });
+  }, [
+    agents,
+    appliedNameTerm,
+    appliedLocationTerm,
+  ]);
+
+  const hasSearch =
+    nameTerm.trim() ||
+    locationTerm.trim() ||
+    appliedNameTerm.trim() ||
+    appliedLocationTerm.trim();
+
   return (
     <>
       <Navbar />
@@ -101,6 +184,7 @@ export default function AgentsPage() {
       <main className="min-h-screen bg-[#F7F7F3]">
 
         {/* HERO */}
+
         <section className="bg-[#08192E] text-white py-16">
 
           <div className="max-w-7xl mx-auto px-6 text-center">
@@ -114,16 +198,117 @@ export default function AgentsPage() {
             </h1>
 
             <p className="text-gray-300 text-lg mt-5 max-w-2xl mx-auto">
-              Connect with property professionals
-              with active listings on
-              PaujaRealtyHub.
+              Search and connect with property professionals
+              who have active listings on PaujaRealtyHub.
             </p>
 
           </div>
 
         </section>
 
+        {/* SEARCH */}
+
+        <section className="max-w-7xl mx-auto px-6">
+
+          <form
+            onSubmit={handleSearch}
+            className="bg-white border border-gray-100 shadow-lg rounded-2xl p-5 md:p-6 -mt-7 relative z-10"
+          >
+
+            <div className="grid md:grid-cols-2 gap-4">
+
+              <div>
+
+                <label className="block text-sm font-bold text-[#0B1F3A] mb-2">
+                  Agent Name or Agency
+                </label>
+
+                <input
+                  type="text"
+                  value={nameTerm}
+                  onChange={(e) =>
+                    setNameTerm(
+                      e.target.value
+                    )
+                  }
+                  placeholder="e.g. Ayowamiri Michael, agency name..."
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#0B1F3A] bg-[#FAFAF8] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                />
+
+              </div>
+
+              <div>
+
+                <label className="block text-sm font-bold text-[#0B1F3A] mb-2">
+                  Location
+                </label>
+
+                <input
+                  type="text"
+                  value={locationTerm}
+                  onChange={(e) =>
+                    setLocationTerm(
+                      e.target.value
+                    )
+                  }
+                  placeholder="e.g. Lagos, Ikeja, Abuja..."
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#0B1F3A] bg-[#FAFAF8] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                />
+
+              </div>
+
+            </div>
+
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-5">
+
+              <div className="flex flex-col sm:flex-row gap-3">
+
+                <button
+                  type="submit"
+                  className="bg-[#C9A227] text-[#08192E] px-7 py-3 rounded-xl font-bold hover:brightness-110 transition"
+                >
+                  🔍 Search Agents
+                </button>
+
+                {hasSearch && (
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    className="border border-gray-300 text-[#0B1F3A] px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition"
+                  >
+                    Clear Search
+                  </button>
+                )}
+
+              </div>
+
+              {!loading &&
+                !errorMessage && (
+                  <p className="text-sm text-gray-500">
+
+                    Showing{" "}
+
+                    <strong className="text-[#0B1F3A]">
+                      {
+                        filteredAgents.length
+                      }
+                    </strong>{" "}
+
+                    {filteredAgents.length === 1
+                      ? "professional"
+                      : "professionals"}
+
+                  </p>
+                )}
+
+            </div>
+
+          </form>
+
+        </section>
+
         {/* CONTENT */}
+
         <section className="max-w-7xl mx-auto px-6 py-16">
 
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
@@ -146,25 +331,29 @@ export default function AgentsPage() {
 
             </div>
 
-            {!loading && (
-              <div className="bg-white border border-gray-100 rounded-xl shadow-sm px-5 py-3">
+            {!loading &&
+              !errorMessage && (
+                <div className="bg-white border border-gray-100 rounded-xl shadow-sm px-5 py-3">
 
-                <span className="text-[#C9A227] text-xl font-bold">
-                  {agents.length}
-                </span>
+                  <span className="text-[#C9A227] text-xl font-bold">
+                    {
+                      filteredAgents.length
+                    }
+                  </span>
 
-                <span className="text-gray-500 ml-2">
-                  {agents.length === 1
-                    ? "professional"
-                    : "professionals"}
-                </span>
+                  <span className="text-gray-500 ml-2">
+                    {filteredAgents.length === 1
+                      ? "professional"
+                      : "professionals"}
+                  </span>
 
-              </div>
-            )}
+                </div>
+              )}
 
           </div>
 
           {/* LOADING */}
+
           {loading && (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm py-20 text-center">
 
@@ -178,29 +367,32 @@ export default function AgentsPage() {
           )}
 
           {/* ERROR */}
-          {!loading && errorMessage && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
 
-              <h3 className="text-red-700 text-xl font-bold">
-                Unable to Load Agents
-              </h3>
+          {!loading &&
+            errorMessage && (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
 
-              <p className="text-red-600 mt-2">
-                {errorMessage}
-              </p>
+                <h3 className="text-red-700 text-xl font-bold">
+                  Unable to Load Agents
+                </h3>
 
-              <button
-                type="button"
-                onClick={loadAgents}
-                className="mt-5 bg-[#08192E] text-white px-6 py-3 rounded-xl font-semibold"
-              >
-                Try Again
-              </button>
+                <p className="text-red-600 mt-2">
+                  {errorMessage}
+                </p>
 
-            </div>
-          )}
+                <button
+                  type="button"
+                  onClick={loadAgents}
+                  className="mt-5 bg-[#08192E] text-white px-6 py-3 rounded-xl font-semibold"
+                >
+                  Try Again
+                </button>
 
-          {/* EMPTY */}
+              </div>
+            )}
+
+          {/* NO AGENTS */}
+
           {!loading &&
             !errorMessage &&
             agents.length === 0 && (
@@ -223,126 +415,170 @@ export default function AgentsPage() {
               </div>
             )}
 
-          {/* AGENT GRID */}
+          {/* NO SEARCH MATCH */}
+
           {!loading &&
             !errorMessage &&
-            agents.length > 0 && (
+            agents.length > 0 &&
+            filteredAgents.length === 0 && (
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm py-16 px-6 text-center">
+
+                <div className="text-5xl">
+                  🔎
+                </div>
+
+                <h3 className="text-2xl font-bold text-[#0B1F3A] mt-5">
+                  No Matching Agents
+                </h3>
+
+                <p className="text-gray-500 mt-3">
+                  No property professional currently
+                  matches that name or location.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="mt-6 bg-[#08192E] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+                >
+                  Browse All Agents
+                </button>
+
+              </div>
+            )}
+
+          {/* AGENT GRID */}
+
+          {!loading &&
+            !errorMessage &&
+            filteredAgents.length > 0 && (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-                {agents.map((agent) => {
+                {filteredAgents.map(
+                  (agent) => {
 
-                  const displayName =
-                    agent.agent_name ||
-                    agent.full_name ||
-                    "Property Professional";
+                    const displayName =
+                      agent.agent_name ||
+                      agent.full_name ||
+                      "Property Professional";
 
-                  const avatar =
-                    agent.avatar_url ||
-                    agent.profile_photo ||
-                    "";
+                    const avatar =
+                      agent.avatar_url ||
+                      agent.profile_photo ||
+                      "";
 
-                  return (
-                    <div
-                      key={agent.id}
-                      className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-                    >
+                    return (
+                      <div
+                        key={agent.id}
+                        className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                      >
 
-                      <div className="h-2 bg-[#C9A227]" />
+                        <div className="h-2 bg-[#C9A227]" />
 
-                      <div className="p-8 text-center">
+                        <div className="p-8 text-center">
 
-                        {/* AVATAR */}
-                        {avatar ? (
-                          <div className="relative w-28 h-28 mx-auto rounded-full overflow-hidden border-4 border-[#C9A227]">
+                          {/* AVATAR */}
 
-                            <Image
-                              src={avatar}
-                              alt={displayName}
-                              fill
-                              unoptimized
-                              className="object-cover"
-                            />
+                          {avatar ? (
+                            <div className="relative w-28 h-28 mx-auto rounded-full overflow-hidden border-4 border-[#C9A227]">
 
-                          </div>
-                        ) : (
-                          <div className="w-28 h-28 mx-auto rounded-full bg-[#08192E] border-4 border-[#C9A227] flex items-center justify-center">
+                              <Image
+                                src={avatar}
+                                alt={displayName}
+                                fill
+                                unoptimized
+                                className="object-cover"
+                              />
 
-                            <span className="text-[#C9A227] text-4xl font-bold">
-                              {displayName
-                                .charAt(0)
-                                .toUpperCase()}
-                            </span>
+                            </div>
+                          ) : (
+                            <div className="w-28 h-28 mx-auto rounded-full bg-[#08192E] border-4 border-[#C9A227] flex items-center justify-center">
 
-                          </div>
-                        )}
+                              <span className="text-[#C9A227] text-4xl font-bold">
+                                {displayName
+                                  .charAt(0)
+                                  .toUpperCase()}
+                              </span>
 
-                        {/* NAME */}
-                        <div className="mt-6 flex items-center justify-center gap-2">
-
-                          <h3 className="text-2xl font-bold text-[#0B1F3A]">
-                            {displayName}
-                          </h3>
-
-                          {agent.verified === true && (
-                            <span
-                              title="Verified"
-                              className="bg-green-100 text-green-700 rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold"
-                            >
-                              ✓
-                            </span>
+                            </div>
                           )}
 
+                          {/* NAME */}
+
+                          <div className="mt-6 flex items-center justify-center gap-2">
+
+                            <h3 className="text-2xl font-bold text-[#0B1F3A]">
+                              {displayName}
+                            </h3>
+
+                            {agent.verified === true && (
+                              <span
+                                title="Verified"
+                                className="bg-green-100 text-green-700 rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold"
+                              >
+                                ✓
+                              </span>
+                            )}
+
+                          </div>
+
+                          {/* AGENCY */}
+
+                          {agent.agency_name && (
+                            <p className="text-[#B8922E] font-semibold mt-2">
+                              {agent.agency_name}
+                            </p>
+                          )}
+
+                          {/* LOCATION */}
+
+                          {(agent.city ||
+                            agent.state) && (
+                            <p className="text-gray-500 mt-3">
+
+                              📍{" "}
+
+                              {[
+                                agent.city,
+                                agent.state,
+                              ]
+                                .filter(Boolean)
+                                .join(", ")}
+
+                            </p>
+                          )}
+
+                          {/* LISTINGS */}
+
+                          <div className="mt-7 py-5 border-y border-gray-100">
+
+                            <p className="text-3xl font-bold text-[#C9A227]">
+                              {agent.activeListings}
+                            </p>
+
+                            <p className="text-sm text-gray-500 mt-1">
+                              {agent.activeListings === 1
+                                ? "Active Listing"
+                                : "Active Listings"}
+                            </p>
+
+                          </div>
+
+                          {/* PROFILE */}
+
+                          <Link
+                            href={`/agents/${agent.id}`}
+                            className="block mt-7 bg-[#08192E] text-white py-3 rounded-xl font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+                          >
+                            View Profile
+                          </Link>
+
                         </div>
-
-                        {/* AGENCY */}
-                        {agent.agency_name && (
-                          <p className="text-[#B8922E] font-semibold mt-2">
-                            {agent.agency_name}
-                          </p>
-                        )}
-
-                        {/* LOCATION */}
-                        {(agent.city ||
-                          agent.state) && (
-                          <p className="text-gray-500 mt-3">
-                            📍{" "}
-                            {[
-                              agent.city,
-                              agent.state,
-                            ]
-                              .filter(Boolean)
-                              .join(", ")}
-                          </p>
-                        )}
-
-                        {/* LISTINGS */}
-                        <div className="mt-7 py-5 border-y border-gray-100">
-
-                          <p className="text-3xl font-bold text-[#C9A227]">
-                            {agent.activeListings}
-                          </p>
-
-                          <p className="text-sm text-gray-500 mt-1">
-                            {agent.activeListings === 1
-                              ? "Active Listing"
-                              : "Active Listings"}
-                          </p>
-
-                        </div>
-
-                        {/* PROFILE */}
-                        <Link
-                          href={`/agents/${agent.id}`}
-                          className="block mt-7 bg-[#08192E] text-white py-3 rounded-xl font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-                        >
-                          View Profile
-                        </Link>
 
                       </div>
-
-                    </div>
-                  );
-                })}
+                    );
+                  }
+                )}
 
               </div>
             )}

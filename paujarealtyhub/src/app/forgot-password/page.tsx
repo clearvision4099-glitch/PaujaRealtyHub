@@ -23,7 +23,7 @@ export default function ForgotPasswordPage() {
       setSending(true);
 
       const redirectTo =
-        `${window.location.origin}/reset-password`;
+        `${window.location.origin}/dashboard/reset-password`;
 
       const { error } =
         await supabase.auth.resetPasswordForEmail(
@@ -72,6 +72,7 @@ export default function ForgotPasswordPage() {
           onSubmit={handleSubmit}
           className="space-y-5"
         >
+
           <div>
             <label className="block font-semibold mb-2">
               Email Address
@@ -98,6 +99,7 @@ export default function ForgotPasswordPage() {
               ? "Sending..."
               : "Send Reset Link"}
           </button>
+
         </form>
 
         <div className="mt-6 text-center">

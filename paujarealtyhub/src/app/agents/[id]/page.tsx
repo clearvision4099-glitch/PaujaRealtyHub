@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -12,6 +12,7 @@ import PropertyCard from "@/components/properties/PropertyCard";
 
 export default function AgentProfilePage() {
   const params = useParams();
+  const router = useRouter();
 
   const agentId = Array.isArray(params.id)
     ? params.id[0]
@@ -20,6 +21,12 @@ export default function AgentProfilePage() {
   const [agent, setAgent] = useState<any>(null);
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [messageModalOpen, setMessageModalOpen] =
+    useState(false);
+
+  const [currentUserId, setCurrentUserId] =
+    useState("");
 
   useEffect(() => {
     if (agentId) {
@@ -30,6 +37,12 @@ export default function AgentProfilePage() {
   async function loadAgent() {
     try {
       setLoading(true);
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      setCurrentUserId(user?.id || "");
 
       const {
         data: profile,
@@ -112,6 +125,50 @@ export default function AgentProfilePage() {
     }
   }
 
+  function handleMessageAgent() {
+    if (!currentUserId) {
+      router.push(
+        `/login?redirect=${encodeURIComponent(
+          `/agents/${agentId}`
+        )}`
+      );
+      return;
+    }
+
+    if (currentUserId === agentId) {
+      alert(
+        "You cannot message your own agent profile."
+      );
+      return;
+    }
+
+    if (properties.length === 0) {
+      alert(
+        "This agent currently has no published property to attach a conversation to."
+      );
+      return;
+    }
+
+    if (properties.length === 1) {
+      router.push(
+        `/dashboard/messages/${properties[0].id}?user=${agentId}`
+      );
+      return;
+    }
+
+    setMessageModalOpen(true);
+  }
+
+  function messageAboutProperty(
+    propertyId: number
+  ) {
+    setMessageModalOpen(false);
+
+    router.push(
+      `/dashboard/messages/${propertyId}?user=${agentId}`
+    );
+  }
+
   const callNumber = agent?.phone
     ? agent.phone.replace(/[^\d+]/g, "")
     : "";
@@ -128,11 +185,13 @@ export default function AgentProfilePage() {
         <main className="min-h-[70vh] bg-[#F7F7F3] flex items-center justify-center">
 
           <div className="text-center">
+
             <div className="w-12 h-12 border-4 border-gray-200 border-t-[#C9A227] rounded-full animate-spin mx-auto" />
 
             <p className="text-gray-500 mt-5">
               Loading agent...
             </p>
+
           </div>
 
         </main>
@@ -182,6 +241,7 @@ export default function AgentProfilePage() {
       <main className="bg-[#F7F7F3] min-h-screen">
 
         {/* HERO */}
+
         <section className="bg-[#08192E] text-white">
 
           <div className="max-w-7xl mx-auto px-6 py-16">
@@ -196,6 +256,7 @@ export default function AgentProfilePage() {
             <div className="mt-10 flex flex-col md:flex-row gap-8 items-start md:items-center">
 
               {/* AVATAR */}
+
               {agent.avatar_url ? (
                 <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-[#C9A227] shrink-0">
 
@@ -213,13 +274,16 @@ export default function AgentProfilePage() {
                 </div>
               ) : (
                 <div className="w-32 h-32 rounded-full bg-white/10 border-4 border-[#C9A227] text-[#C9A227] flex items-center justify-center text-5xl font-bold shrink-0">
+
                   {(agent.full_name || "A")
                     .charAt(0)
                     .toUpperCase()}
+
                 </div>
               )}
 
               {/* DETAILS */}
+
               <div className="flex-1">
 
                 <div className="flex flex-wrap items-center gap-3">
@@ -245,16 +309,20 @@ export default function AgentProfilePage() {
 
                 {(agent.city || agent.state) && (
                   <p className="text-gray-300 mt-3">
+
                     📍{" "}
+
                     {[agent.city, agent.state]
                       .filter(Boolean)
                       .join(", ")}
+
                   </p>
                 )}
 
                 <div className="flex flex-wrap gap-8 mt-6">
 
                   <div>
+
                     <p className="text-3xl font-bold text-[#C9A227]">
                       {properties.length}
                     </p>
@@ -264,6 +332,7 @@ export default function AgentProfilePage() {
                         ? "Published Property"
                         : "Published Properties"}
                     </p>
+
                   </div>
 
                 </div>
@@ -275,7 +344,16 @@ export default function AgentProfilePage() {
                 )}
 
                 {/* CONTACT */}
+
                 <div className="flex flex-wrap gap-3 mt-8">
+
+                  <button
+                    type="button"
+                    onClick={handleMessageAgent}
+                    className="bg-white text-[#08192E] px-6 py-3 rounded-xl font-bold hover:bg-[#C9A227] transition"
+                  >
+                    💬 Message Agent
+                  </button>
 
                   {agent.phone && (
                     <a
@@ -317,6 +395,7 @@ export default function AgentProfilePage() {
         </section>
 
         {/* AGENT PROPERTIES */}
+
         <section className="max-w-7xl mx-auto px-6 py-16">
 
           <div className="mb-10">
@@ -326,9 +405,12 @@ export default function AgentProfilePage() {
             </span>
 
             <h2 className="text-4xl font-bold text-[#0B1F3A] mt-2">
+
               Properties by{" "}
+
               {agent.full_name ||
                 "this agent"}
+
             </h2>
 
             <p className="text-gray-500 mt-3">
@@ -371,6 +453,116 @@ export default function AgentProfilePage() {
       </main>
 
       <Footer />
+
+      {/* MESSAGE PROPERTY SELECTOR */}
+
+      {messageModalOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
+
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
+
+            <div className="p-6 border-b flex items-start justify-between gap-4">
+
+              <div>
+
+                <p className="text-[#B8922E] text-xs font-bold uppercase tracking-widest">
+                  Message Agent
+                </p>
+
+                <h2 className="text-2xl font-bold text-[#0B1F3A] mt-2">
+                  Choose a Property
+                </h2>
+
+                <p className="text-gray-500 mt-2">
+                  Select which listing you want to discuss with{" "}
+                  {agent.full_name || "this agent"}.
+                </p>
+
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setMessageModalOpen(false)
+                }
+                className="w-10 h-10 rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100"
+              >
+                ✕
+              </button>
+
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[55vh] space-y-3">
+
+              {properties.map((property) => {
+
+                const coverImage =
+                  property.property_images?.[0]
+                    ?.image_url || "";
+
+                return (
+                  <button
+                    key={property.id}
+                    type="button"
+                    onClick={() =>
+                      messageAboutProperty(
+                        property.id
+                      )
+                    }
+                    className="w-full text-left border border-gray-200 rounded-xl p-4 hover:border-[#C9A227] hover:bg-[#FFFDF5] transition"
+                  >
+
+                    <div className="flex gap-4 items-center">
+
+                      {coverImage ? (
+                        <img
+                          src={coverImage}
+                          alt={
+                            property.title ||
+                            "Property"
+                          }
+                          className="w-24 h-20 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="w-24 h-20 rounded-lg bg-gray-100 flex items-center justify-center text-2xl">
+                          🏠
+                        </div>
+                      )}
+
+                      <div className="min-w-0 flex-1">
+
+                        <h3 className="font-bold text-[#0B1F3A]">
+                          {property.title ||
+                            `Property #${property.id}`}
+                        </h3>
+
+                        <p className="text-sm text-gray-500 mt-1">
+
+                          {[property.city, property.state]
+                            .filter(Boolean)
+                            .join(", ") ||
+                            "Location unavailable"}
+
+                        </p>
+
+                        <p className="text-sm font-semibold text-[#B8922E] mt-2">
+                          Message about this property →
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                  </button>
+                );
+              })}
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
     </>
   );
 }
