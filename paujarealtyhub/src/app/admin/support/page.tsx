@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
+import AdminNav from "@/components/admin/AdminNav";
 
 type SupportMessage = {
   id: number;
@@ -44,7 +45,10 @@ export default function AdminSupportPage() {
         return;
       }
 
-      const { data: profile, error: profileError } = await supabase
+      const {
+        data: profile,
+        error: profileError,
+      } = await supabase
         .from("profiles")
         .select("is_admin")
         .eq("id", user.id)
@@ -60,10 +64,17 @@ export default function AdminSupportPage() {
       }
 
       setAuthorized(true);
+
       await loadMessages();
     } catch (error) {
-      console.error("ADMIN SUPPORT INIT ERROR:", error);
-      setErrorMessage("Unable to load support messages.");
+      console.error(
+        "ADMIN SUPPORT INIT ERROR:",
+        error
+      );
+
+      setErrorMessage(
+        "Unable to load support messages."
+      );
     } finally {
       setLoading(false);
     }
@@ -120,7 +131,10 @@ export default function AdminSupportPage() {
         )
       );
     } catch (error: any) {
-      console.error("UPDATE SUPPORT STATUS ERROR:", error);
+      console.error(
+        "UPDATE SUPPORT STATUS ERROR:",
+        error
+      );
 
       alert(
         error?.message ||
@@ -163,11 +177,13 @@ export default function AdminSupportPage() {
     return (
       <main className="min-h-screen bg-[#F5F6F8] flex items-center justify-center">
         <div className="text-center">
+
           <div className="w-12 h-12 border-4 border-gray-200 border-t-[#C9A227] rounded-full animate-spin mx-auto" />
 
           <p className="text-gray-500 mt-5">
             Loading support messages...
           </p>
+
         </div>
       </main>
     );
@@ -180,10 +196,14 @@ export default function AdminSupportPage() {
   return (
     <main className="min-h-screen bg-[#F5F6F8]">
 
+      {/* HEADER */}
+
       <section className="bg-[#08192E] text-white border-b border-[#C9A227]/30">
+
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-7 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
           <div>
+
             <span className="text-[#C9A227] text-xs font-bold uppercase tracking-widest">
               Pauja Global Administration
             </span>
@@ -195,6 +215,7 @@ export default function AdminSupportPage() {
             <p className="text-gray-300 mt-2">
               Review messages sent to PaujaRealtyHub management.
             </p>
+
           </div>
 
           <Link
@@ -205,11 +226,20 @@ export default function AdminSupportPage() {
           </Link>
 
         </div>
+
       </section>
+
+      {/* CONTENT */}
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* SHARED ADMIN NAV */}
+
+        <AdminNav />
+
+        {/* STATS */}
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 mb-8">
 
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
             <p className="text-sm text-gray-500">
@@ -253,13 +283,18 @@ export default function AdminSupportPage() {
 
         </div>
 
+        {/* ERROR */}
+
         {errorMessage && (
           <div className="mb-6 bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6">
             {errorMessage}
           </div>
         )}
 
+        {/* MESSAGES */}
+
         {messages.length === 0 ? (
+
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-12 text-center">
 
             <div className="text-5xl">
@@ -275,7 +310,9 @@ export default function AdminSupportPage() {
             </p>
 
           </div>
+
         ) : (
+
           <div className="space-y-5">
 
             {messages.map((message) => {

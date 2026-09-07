@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
+import AdminNav from "@/components/admin/AdminNav";
 
 type AdminBusiness = {
   id: number;
@@ -199,13 +200,15 @@ export default function AdminBusinessesPage() {
 
         </div>
       </section>
+<div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+  {/* SHARED ADMIN NAV */}
 
-        {/* COUNTS */}
+  <AdminNav />
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  {/* COUNTS */}
 
+  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 mb-8">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <p className="text-sm text-gray-500">
               Total Businesses

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
+import AdminNav from "@/components/admin/AdminNav";
 
 type AdminProperty = {
   id: number;
@@ -178,10 +179,13 @@ export default function AdminPropertiesPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+     <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
 
-        <div className="mb-6 bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+  {/* SHARED ADMIN NAV */}
 
+  <AdminNav />
+
+  <div className="mt-8 mb-6 bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
           <p className="text-sm text-gray-500">
             Total listings
           </p>

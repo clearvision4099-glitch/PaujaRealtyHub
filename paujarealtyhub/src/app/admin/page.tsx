@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { supabase } from "@/lib/supabase";
+import AdminNav from "@/components/admin/AdminNav";
 
 type AdminStats = {
   users: number;
@@ -17,20 +18,16 @@ type AdminStats = {
 export default function AdminPage() {
   const router = useRouter();
 
-  const [authorized, setAuthorized] =
-    useState(false);
+  const [authorized, setAuthorized] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const [loading, setLoading] =
-    useState(true);
-
-  const [stats, setStats] =
-    useState<AdminStats>({
-      users: 0,
-      properties: 0,
-      publishedProperties: 0,
-      businesses: 0,
-      newSupportMessages: 0,
-    });
+  const [stats, setStats] = useState<AdminStats>({
+    users: 0,
+    properties: 0,
+    publishedProperties: 0,
+    businesses: 0,
+    newSupportMessages: 0,
+  });
 
   useEffect(() => {
     initializeAdmin();
@@ -129,18 +126,11 @@ export default function AdminPage() {
     ]);
 
     setStats({
-      users:
-        usersResult.count || 0,
-
-      properties:
-        propertiesResult.count || 0,
-
+      users: usersResult.count || 0,
+      properties: propertiesResult.count || 0,
       publishedProperties:
         publishedResult.count || 0,
-
-      businesses:
-        businessesResult.count || 0,
-
+      businesses: businessesResult.count || 0,
       newSupportMessages:
         supportResult.count || 0,
     });
@@ -149,17 +139,13 @@ export default function AdminPage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-[#F5F6F8] flex items-center justify-center">
-
         <div className="text-center">
-
           <div className="w-12 h-12 border-4 border-gray-200 border-t-[#C9A227] rounded-full animate-spin mx-auto" />
 
           <p className="text-gray-500 mt-5">
             Loading Admin Dashboard...
           </p>
-
         </div>
-
       </main>
     );
   }
@@ -174,11 +160,9 @@ export default function AdminPage() {
       {/* HEADER */}
 
       <section className="bg-[#08192E] text-white border-b border-[#C9A227]/30">
-
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
           <div>
-
             <span className="text-[#C9A227] text-xs font-bold uppercase tracking-widest">
               Pauja Global Administration
             </span>
@@ -191,7 +175,6 @@ export default function AdminPage() {
               Manage the platform, users, listings,
               businesses and support enquiries.
             </p>
-
           </div>
 
           <Link
@@ -202,14 +185,19 @@ export default function AdminPage() {
           </Link>
 
         </div>
-
       </section>
+
+      {/* ADMIN CONTENT */}
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-10">
 
+        {/* SHARED ADMIN NAVIGATION */}
+
+        <AdminNav />
+
         {/* STATS */}
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-5 mt-8">
 
           <StatCard
             title="Users / Agents"
@@ -225,25 +213,19 @@ export default function AdminPage() {
 
           <StatCard
             title="Published"
-            value={
-              stats.publishedProperties
-            }
+            value={stats.publishedProperties}
             icon="✅"
           />
 
           <StatCard
             title="Businesses"
-            value={
-              stats.businesses
-            }
+            value={stats.businesses}
             icon="🏢"
           />
 
           <StatCard
             title="New Support"
-            value={
-              stats.newSupportMessages
-            }
+            value={stats.newSupportMessages}
             icon="📬"
           />
 
@@ -254,7 +236,6 @@ export default function AdminPage() {
         <section className="mt-10">
 
           <div className="mb-6">
-
             <span className="text-[#B8922E] text-xs font-bold uppercase tracking-widest">
               Administration
             </span>
@@ -262,7 +243,6 @@ export default function AdminPage() {
             <h2 className="text-2xl font-bold text-[#0B1F3A] mt-2">
               Platform Management
             </h2>
-
           </div>
 
           <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -301,13 +281,10 @@ export default function AdminPage() {
               }
               href="/admin/support"
               icon="📬"
-              badge={
-                stats.newSupportMessages
-              }
+              badge={stats.newSupportMessages}
             />
 
           </div>
-
         </section>
 
         {/* V1 NOTE */}
@@ -329,7 +306,6 @@ export default function AdminPage() {
         </div>
 
       </div>
-
     </main>
   );
 }
