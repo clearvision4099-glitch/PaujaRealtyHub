@@ -121,10 +121,310 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+
   html {
     @apply font-sans;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+  }
+}
+
+/* =========================================================
+   PAUJA REALTY HUB
+   GLOBAL MOBILE COMPACT MODE
+   Phones only — desktop/tablet remain unchanged
+   ========================================================= */
+
+@media (max-width: 639px) {
+
+  /*
+   * Prevent accidental horizontal scrolling
+   */
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  main {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  main img,
+  main video,
+  main iframe {
+    max-width: 100%;
+  }
+
+  /*
+   * GLOBAL MOBILE TYPOGRAPHY
+   */
+
+  main .text-6xl {
+    font-size: 2.35rem !important;
+    line-height: 1.08 !important;
+  }
+
+  main .text-5xl {
+    font-size: 2.15rem !important;
+    line-height: 1.1 !important;
+  }
+
+  main .text-4xl {
+    font-size: 1.9rem !important;
+    line-height: 1.15 !important;
+  }
+
+  main .text-3xl {
+    font-size: 1.65rem !important;
+    line-height: 1.2 !important;
+  }
+
+  main .text-2xl {
+    font-size: 1.35rem !important;
+    line-height: 1.25 !important;
+  }
+
+  /*
+   * Prevent very large headings from dominating phones
+   */
+
+  main h1 {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  main h2,
+  main h3 {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  /*
+   * LARGE SECTION PADDING
+   * Automatically compact common desktop-style spacing
+   */
+
+  main .py-24 {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+  }
+
+  main .py-20 {
+    padding-top: 2.75rem !important;
+    padding-bottom: 2.75rem !important;
+  }
+
+  main .py-16 {
+    padding-top: 2.25rem !important;
+    padding-bottom: 2.25rem !important;
+  }
+
+  main .py-14 {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  main .py-12 {
+    padding-top: 1.75rem !important;
+    padding-bottom: 1.75rem !important;
+  }
+
+  main .py-10 {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+
+  /*
+   * LARGE CARD PADDING
+   */
+
+  main .p-10 {
+    padding: 1.25rem !important;
+  }
+
+  main .p-8 {
+    padding: 1.125rem !important;
+  }
+
+  main .p-7 {
+    padding: 1rem !important;
+  }
+
+  main .p-6 {
+    padding: 1rem !important;
+  }
+
+  main .p-5 {
+    padding: 0.875rem !important;
+  }
+
+  /*
+   * LARGE HORIZONTAL PADDING
+   */
+
+  main .px-10 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  main .px-8 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  main .px-7 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  main .px-6 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /*
+   * COMMON LARGE VERTICAL GAPS
+   */
+
+  main .mt-16 {
+    margin-top: 2.5rem !important;
+  }
+
+  main .mt-14 {
+    margin-top: 2.25rem !important;
+  }
+
+  main .mt-12 {
+    margin-top: 2rem !important;
+  }
+
+  main .mt-10 {
+    margin-top: 1.75rem !important;
+  }
+
+  main .mt-8 {
+    margin-top: 1.5rem !important;
+  }
+
+  main .mb-12 {
+    margin-bottom: 2rem !important;
+  }
+
+  main .mb-10 {
+    margin-bottom: 1.75rem !important;
+  }
+
+  main .mb-8 {
+    margin-bottom: 1.5rem !important;
+  }
+
+  /*
+   * FORMS
+   * Compact but still finger-friendly
+   */
+
+  main input:not([type="checkbox"]):not([type="radio"]),
+  main select,
+  main textarea {
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  main input:not([type="checkbox"]):not([type="radio"]),
+  main select {
+    min-height: 44px;
+  }
+
+  main textarea {
+    min-height: 100px;
+  }
+
+  /*
+   * Common large form padding
+   */
+
+  main input[class*="py-4"],
+  main select[class*="py-4"] {
+    padding-top: 0.7rem !important;
+    padding-bottom: 0.7rem !important;
+  }
+
+  main input[class*="py-3"],
+  main select[class*="py-3"] {
+    padding-top: 0.65rem !important;
+    padding-bottom: 0.65rem !important;
+  }
+
+  /*
+   * BUTTONS AND BUTTON-LIKE LINKS
+   */
+
+  main button[class*="py-4"],
+  main a[class*="py-4"] {
+    padding-top: 0.7rem !important;
+    padding-bottom: 0.7rem !important;
+  }
+
+  main button[class*="py-3"],
+  main a[class*="py-3"] {
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+  }
+
+  /*
+   * LARGE ROUNDED CARDS
+   * Slightly reduce excessive curvature on phones
+   */
+
+  main .rounded-3xl {
+    border-radius: 1.25rem !important;
+  }
+
+  main .rounded-2xl {
+    border-radius: 1rem !important;
+  }
+
+  /*
+   * FLEX/GRID SAFETY
+   */
+
+  main .grid,
+  main .flex {
+    min-width: 0;
+  }
+
+  main .grid > *,
+  main .flex > * {
+    min-width: 0;
+  }
+
+  /*
+   * Long names, prices, addresses and emails
+   */
+
+  main p,
+  main h1,
+  main h2,
+  main h3,
+  main h4,
+  main span,
+  main a {
+    overflow-wrap: break-word;
   }
 }
