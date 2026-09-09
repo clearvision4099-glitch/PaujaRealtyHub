@@ -17,10 +17,7 @@ import {
 } from "@/services/nearbyPlaces";
 
 const PropertyMap = dynamic(
-  () =>
-    import(
-      "@/components/properties/PropertyMap"
-    ),
+  () => import("@/components/properties/PropertyMap"),
   {
     ssr: false,
 
@@ -43,6 +40,8 @@ export default function PublicPropertyPage() {
 
   const [property, setProperty] = useState<any>(null);
   const [agent, setAgent] = useState<any>(null);
+  const [currentUserId, setCurrentUserId] =
+    useState<string | null>(null);
 
   const [selectedImage, setSelectedImage] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -60,6 +59,24 @@ export default function PublicPropertyPage() {
 
   const [nearbyError, setNearbyError] =
     useState("");
+
+  /*
+  -----------------------------------
+  LOAD CURRENT USER
+  -----------------------------------
+  */
+
+  useEffect(() => {
+    async function loadCurrentUser() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      setCurrentUserId(user?.id || null);
+    }
+
+    loadCurrentUser();
+  }, []);
 
   /*
   -----------------------------------
@@ -361,6 +378,10 @@ export default function PublicPropertyPage() {
         )
       : "";
 
+  const isOwner =
+    Boolean(currentUserId) &&
+    currentUserId === property?.user_id;
+
   /*
   -----------------------------------
   LOADING
@@ -370,17 +391,13 @@ export default function PublicPropertyPage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-[#F7F7F3] flex items-center justify-center">
-
         <div className="text-center">
-
           <div className="w-12 h-12 border-4 border-gray-200 border-t-[#C9A227] rounded-full animate-spin mx-auto" />
 
           <p className="text-gray-500 mt-5">
             Loading property...
           </p>
-
         </div>
-
       </main>
     );
   }
@@ -394,9 +411,7 @@ export default function PublicPropertyPage() {
   if (!property) {
     return (
       <main className="min-h-screen bg-[#F7F7F3] flex items-center justify-center px-6">
-
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center max-w-xl w-full">
-
           <div className="text-5xl mb-5">
             🏠
           </div>
@@ -415,9 +430,7 @@ export default function PublicPropertyPage() {
           >
             Browse Properties
           </Link>
-
         </div>
-
       </main>
     );
   }
@@ -434,18 +447,14 @@ export default function PublicPropertyPage() {
       {/* TOP STRIP */}
 
       <section className="bg-[#08192E] border-b border-[#C9A227]/30">
-
         <div className="max-w-7xl mx-auto px-6 py-5">
-
           <Link
             href="/properties"
             className="text-[#C9A227] font-semibold hover:text-white transition"
           >
             ← Back to Properties
           </Link>
-
         </div>
-
       </section>
 
       <div className="max-w-7xl mx-auto px-6 py-10">
@@ -717,73 +726,73 @@ export default function PublicPropertyPage() {
 
             </section>
 
-{/* PROPERTY SERVICES */}
+            {/* PROPERTY SERVICES */}
 
-<section className="mt-10 bg-[#08192E] text-white rounded-2xl shadow-lg p-7">
+            <section className="mt-10 bg-[#08192E] text-white rounded-2xl shadow-lg p-7">
 
-  <span className="text-[#C9A227] text-xs font-bold uppercase tracking-widest">
-    Pauja Property Services
-  </span>
+              <span className="text-[#C9A227] text-xs font-bold uppercase tracking-widest">
+                Pauja Property Services
+              </span>
 
-  <h2 className="text-2xl font-bold mt-2">
-    Need a Professional for This Property?
-  </h2>
+              <h2 className="text-2xl font-bold mt-2">
+                Need a Professional for This Property?
+              </h2>
 
-  <p className="text-gray-300 mt-3 leading-7">
-    Find registered professionals and businesses that can help
-    you inspect, secure, build, improve or manage this property.
-  </p>
+              <p className="text-gray-300 mt-3 leading-7">
+                Find registered professionals and businesses that can help
+                you inspect, secure, build, improve or manage this property.
+              </p>
 
-  <div className="grid sm:grid-cols-2 gap-3 mt-6">
+              <div className="grid sm:grid-cols-2 gap-3 mt-6">
 
-    <Link
-      href={`/businesses?category=Land%20Surveyor&location=${encodeURIComponent(
-        property.city || property.state || ""
-      )}`}
-      className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-    >
-      📐 Find a Surveyor
-    </Link>
+                <Link
+                  href={`/businesses?category=Land%20Surveyor&location=${encodeURIComponent(
+                    property.city || property.state || ""
+                  )}`}
+                  className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+                >
+                  📐 Find a Surveyor
+                </Link>
 
-    <Link
-      href={`/businesses?category=Property Lawyer&location=${encodeURIComponent(
-        property.city || property.state || ""
-      )}`}
-      className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-    >
-      ⚖️ Find a Property Lawyer
-    </Link>
+                <Link
+                  href={`/businesses?category=Property Lawyer&location=${encodeURIComponent(
+                    property.city || property.state || ""
+                  )}`}
+                  className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+                >
+                  ⚖️ Find a Property Lawyer
+                </Link>
 
-    <Link
-      href={`/businesses?category=Builder%20%2F%20Contractor&location=${encodeURIComponent(
-        property.city || property.state || ""
-      )}`}
-      className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-    >
-      🏗️ Find a Builder
-    </Link>
+                <Link
+                  href={`/businesses?category=Builder%20%2F%20Contractor&location=${encodeURIComponent(
+                    property.city || property.state || ""
+                  )}`}
+                  className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+                >
+                  🏗️ Find a Builder
+                </Link>
 
-    <Link
-      href={`/businesses?category=Interior Designer&location=${encodeURIComponent(
-        property.city || property.state || ""
-      )}`}
-      className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-    >
-      🛋️ Find an Interior Designer
-    </Link>
+                <Link
+                  href={`/businesses?category=Interior Designer&location=${encodeURIComponent(
+                    property.city || property.state || ""
+                  )}`}
+                  className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+                >
+                  🛋️ Find an Interior Designer
+                </Link>
 
-  </div>
+              </div>
 
-  <Link
-    href={`/businesses?location=${encodeURIComponent(
-      property.city || property.state || ""
-    )}`}
-    className="inline-flex mt-6 text-[#C9A227] font-bold hover:text-white transition"
-  >
-    Browse All Services in This Area →
-  </Link>
+              <Link
+                href={`/businesses?location=${encodeURIComponent(
+                  property.city || property.state || ""
+                )}`}
+                className="inline-flex mt-6 text-[#C9A227] font-bold hover:text-white transition"
+              >
+                Browse All Services in This Area →
+              </Link>
 
-</section>
+            </section>
 
             {/* AGENT */}
 
@@ -868,55 +877,68 @@ export default function PublicPropertyPage() {
                       </p>
                     )}
 
+                    {/* OWNER / VISITOR ACTIONS */}
+
                     <div className="flex flex-wrap gap-3 mt-6">
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setContactModalOpen(
-                            true
-                          )
-                        }
-                        className="bg-[#08192E] text-white px-5 py-3 rounded-xl font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-                      >
-                        💬 Contact Agent
-                      </button>
-
-                      {agent.phone && (
-                        <a
-                          href={`tel:${callNumber}`}
-                          className="border border-[#08192E] text-[#08192E] px-5 py-3 rounded-xl font-semibold hover:bg-[#08192E] hover:text-white transition"
+                      {isOwner ? (
+                        <Link
+                          href={`/dashboard/edit-property/${property.id}`}
+                          className="bg-[#C9A227] text-[#08192E] px-5 py-3 rounded-xl font-bold hover:brightness-110 transition"
                         >
-                          📞 Call
-                        </a>
-                      )}
+                          ✓ Your Listing — Edit Property
+                        </Link>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setContactModalOpen(
+                                true
+                              )
+                            }
+                            className="bg-[#08192E] text-white px-5 py-3 rounded-xl font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+                          >
+                            💬 Contact Agent
+                          </button>
 
-                      {agent.phone && (
-                        <a
-                          href={`https://wa.me/${whatsappNumber}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-green-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
-                        >
-                          💬 WhatsApp
-                        </a>
-                      )}
+                          {agent.phone && (
+                            <a
+                              href={`tel:${callNumber}`}
+                              className="border border-[#08192E] text-[#08192E] px-5 py-3 rounded-xl font-semibold hover:bg-[#08192E] hover:text-white transition"
+                            >
+                              📞 Call
+                            </a>
+                          )}
 
-                      {agent.email && (
-                        <a
-                          href={`mailto:${agent.email}`}
-                          className="border border-[#C9A227] text-[#9A7720] px-5 py-3 rounded-xl font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-                        >
-                          ✉ Email
-                        </a>
-                      )}
+                          {agent.phone && (
+                            <a
+                              href={`https://wa.me/${whatsappNumber}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-green-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
+                            >
+                              💬 WhatsApp
+                            </a>
+                          )}
 
-                      <Link
-                        href={`/agents/${agent.id}`}
-                        className="border border-gray-300 text-gray-700 px-5 py-3 rounded-xl font-semibold hover:bg-gray-100 transition"
-                      >
-                        View Agent Profile
-                      </Link>
+                          {agent.email && (
+                            <a
+                              href={`mailto:${agent.email}`}
+                              className="border border-[#C9A227] text-[#9A7720] px-5 py-3 rounded-xl font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+                            >
+                              ✉ Email
+                            </a>
+                          )}
+
+                          <Link
+                            href={`/agents/${agent.id}`}
+                            className="border border-gray-300 text-gray-700 px-5 py-3 rounded-xl font-semibold hover:bg-gray-100 transition"
+                          >
+                            View Agent Profile
+                          </Link>
+                        </>
+                      )}
 
                     </div>
 
@@ -1046,9 +1068,9 @@ export default function PublicPropertyPage() {
 
       </div>
 
-      {/* CONTACT AGENT MODAL */}
+      {/* CONTACT AGENT MODAL - NEVER MOUNT FOR OWNER */}
 
-      {agent && (
+      {agent && !isOwner && (
         <ContactAgentModal
           open={
             contactModalOpen
