@@ -796,158 +796,154 @@ export default function PublicPropertyPage() {
 
             {/* AGENT */}
 
-            {agent && (
-              <section className="mt-10 bg-white rounded-2xl border border-gray-100 shadow-lg p-7">
+           {agent && (
+  <section className="mt-6 sm:mt-10 bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-lg p-4 sm:p-7">
 
-                <div className="flex items-center justify-between gap-4 mb-6">
+    <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6">
 
-                  <h2 className="text-2xl font-bold text-[#0B1F3A]">
-                    Listed By
-                  </h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-[#0B1F3A]">
+        Listed By
+      </h2>
 
-                  {agent.verified && (
-                    <span className="bg-green-100 text-green-700 text-sm font-semibold px-3 py-1 rounded-full">
-                      ✓ Verified
-                    </span>
-                  )}
+      {agent.verified && (
+        <span className="bg-green-100 text-green-700 text-xs sm:text-sm font-semibold px-2.5 sm:px-3 py-1 rounded-full">
+          ✓ Verified
+        </span>
+      )}
 
-                </div>
+    </div>
 
-                <div className="flex flex-col sm:flex-row items-start gap-5">
+    <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-5">
 
-                  {agent.avatar_url ? (
-                    <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-[#C9A227] shrink-0">
+      {agent.avatar_url ? (
+        <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-4 border-[#C9A227] shrink-0">
 
-                      <Image
-                        src={
-                          agent.avatar_url
-                        }
-                        alt={
-                          agent.full_name ||
-                          "Agent"
-                        }
-                        fill
-                        unoptimized
-                        className="object-cover"
-                      />
+          <Image
+            src={agent.avatar_url}
+            alt={
+              agent.full_name ||
+              "Agent"
+            }
+            fill
+            unoptimized
+            className="object-cover"
+          />
 
-                    </div>
-                  ) : (
-                    <div className="w-20 h-20 rounded-full bg-[#08192E] border-4 border-[#C9A227] text-[#C9A227] flex items-center justify-center text-3xl font-bold shrink-0">
+        </div>
+      ) : (
+        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#08192E] border-4 border-[#C9A227] text-[#C9A227] flex items-center justify-center text-2xl sm:text-3xl font-bold shrink-0">
 
-                      {(
-                        agent.full_name ||
-                        "A"
-                      )
-                        .charAt(0)
-                        .toUpperCase()}
+          {(
+            agent.full_name ||
+            "A"
+          )
+            .charAt(0)
+            .toUpperCase()}
 
-                    </div>
-                  )}
+        </div>
+      )}
 
-                  <div className="flex-1">
+      <div className="flex-1 w-full">
 
-                    <h3 className="text-2xl font-bold text-[#0B1F3A]">
-                      {agent.full_name ||
-                        "Property Professional"}
-                    </h3>
+        <h3 className="text-xl sm:text-2xl font-bold text-[#0B1F3A]">
+          {agent.full_name ||
+            "Property Professional"}
+        </h3>
 
-                    {agent.agency_name && (
-                      <p className="text-[#B8922E] font-semibold mt-1">
-                        {agent.agency_name}
-                      </p>
-                    )}
+        {agent.agency_name && (
+          <p className="text-[#B8922E] text-sm sm:text-base font-semibold mt-1">
+            {agent.agency_name}
+          </p>
+        )}
 
-                    {(agent.city ||
-                      agent.state) && (
-                      <p className="text-gray-500 mt-2">
-                        📍{" "}
-                        {[
-                          agent.city,
-                          agent.state,
-                        ]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </p>
-                    )}
+        {(agent.city ||
+          agent.state) && (
+          <p className="text-sm sm:text-base text-gray-500 mt-1.5 sm:mt-2">
+            📍{" "}
+            {[
+              agent.city,
+              agent.state,
+            ]
+              .filter(Boolean)
+              .join(", ")}
+          </p>
+        )}
 
-                    {agent.bio && (
-                      <p className="mt-4 text-gray-600 leading-7">
-                        {agent.bio}
-                      </p>
-                    )}
+        {agent.bio && (
+          <p className="mt-3 sm:mt-4 text-sm sm:text-base text-gray-600 leading-6 sm:leading-7">
+            {agent.bio}
+          </p>
+        )}
 
-                    {/* OWNER / VISITOR ACTIONS */}
+        {/* OWNER / VISITOR ACTIONS */}
 
-                    <div className="flex flex-wrap gap-3 mt-6">
+        <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-6">
 
-                      {isOwner ? (
-                        <Link
-                          href={`/dashboard/edit-property/${property.id}`}
-                          className="bg-[#C9A227] text-[#08192E] px-5 py-3 rounded-xl font-bold hover:brightness-110 transition"
-                        >
-                          ✓ Your Listing — Edit Property
-                        </Link>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setContactModalOpen(
-                                true
-                              )
-                            }
-                            className="bg-[#08192E] text-white px-5 py-3 rounded-xl font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-                          >
-                            💬 Contact Agent
-                          </button>
+          {isOwner ? (
+            <Link
+              href={`/dashboard/edit-property/${property.id}`}
+              className="bg-[#C9A227] text-[#08192E] px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-bold hover:brightness-110 transition"
+            >
+              ✓ Your Listing — Edit Property
+            </Link>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  setContactModalOpen(true)
+                }
+                className="bg-[#08192E] text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+              >
+                💬 Contact Agent
+              </button>
 
-                          {agent.phone && (
-                            <a
-                              href={`tel:${callNumber}`}
-                              className="border border-[#08192E] text-[#08192E] px-5 py-3 rounded-xl font-semibold hover:bg-[#08192E] hover:text-white transition"
-                            >
-                              📞 Call
-                            </a>
-                          )}
+              {agent.phone && (
+                <a
+                  href={`tel:${callNumber}`}
+                  className="border border-[#08192E] text-[#08192E] px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:bg-[#08192E] hover:text-white transition"
+                >
+                  📞 Call
+                </a>
+              )}
 
-                          {agent.phone && (
-                            <a
-                              href={`https://wa.me/${whatsappNumber}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="bg-green-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
-                            >
-                              💬 WhatsApp
-                            </a>
-                          )}
+              {agent.phone && (
+                <a
+                  href={`https://wa.me/${whatsappNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-green-600 text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:bg-green-700 transition"
+                >
+                  💬 WhatsApp
+                </a>
+              )}
 
-                          {agent.email && (
-                            <a
-                              href={`mailto:${agent.email}`}
-                              className="border border-[#C9A227] text-[#9A7720] px-5 py-3 rounded-xl font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-                            >
-                              ✉ Email
-                            </a>
-                          )}
+              {agent.email && (
+                <a
+                  href={`mailto:${agent.email}`}
+                  className="border border-[#C9A227] text-[#9A7720] px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+                >
+                  ✉ Email
+                </a>
+              )}
 
-                          <Link
-                            href={`/agents/${agent.id}`}
-                            className="border border-gray-300 text-gray-700 px-5 py-3 rounded-xl font-semibold hover:bg-gray-100 transition"
-                          >
-                            View Agent Profile
-                          </Link>
-                        </>
-                      )}
+              <Link
+                href={`/agents/${agent.id}`}
+                className="border border-gray-300 text-gray-700 px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold hover:bg-gray-100 transition"
+              >
+                View Agent Profile
+              </Link>
+            </>
+          )}
 
-                    </div>
+        </div>
 
-                  </div>
+      </div>
 
-                </div>
+    </div>
 
-              </section>
-            )}
+  </section>
+)}
 
             {/* LOCATION */}
 
