@@ -733,66 +733,65 @@ export default function PublicPropertyPage() {
               <span className="text-[#C9A227] text-xs font-bold uppercase tracking-widest">
                 Pauja Property Services
               </span>
+<h2 className="text-xl sm:text-2xl font-bold mt-2">
+  Need a Professional for This Property?
+</h2>
 
-              <h2 className="text-2xl font-bold mt-2">
-                Need a Professional for This Property?
-              </h2>
+<p className="text-gray-300 mt-2 sm:mt-3 text-sm sm:text-base leading-6 sm:leading-7">
+  Find registered professionals and businesses that can help
+  you inspect, secure, build, improve or manage this property.
+</p>
 
-              <p className="text-gray-300 mt-3 leading-7">
-                Find registered professionals and businesses that can help
-                you inspect, secure, build, improve or manage this property.
-              </p>
+<div className="grid sm:grid-cols-2 gap-2.5 sm:gap-3 mt-4 sm:mt-6">
 
-              <div className="grid sm:grid-cols-2 gap-3 mt-6">
+  <Link
+    href={`/businesses?category=Land%20Surveyor&location=${encodeURIComponent(
+      property.city || property.state || ""
+    )}`}
+    className="bg-white/10 border border-white/10 rounded-lg sm:rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+  >
+    📐 Find a Surveyor
+  </Link>
 
-                <Link
-                  href={`/businesses?category=Land%20Surveyor&location=${encodeURIComponent(
-                    property.city || property.state || ""
-                  )}`}
-                  className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-                >
-                  📐 Find a Surveyor
-                </Link>
+  <Link
+    href={`/businesses?category=Property Lawyer&location=${encodeURIComponent(
+      property.city || property.state || ""
+    )}`}
+    className="bg-white/10 border border-white/10 rounded-lg sm:rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+  >
+    ⚖️ Find a Property Lawyer
+  </Link>
 
-                <Link
-                  href={`/businesses?category=Property Lawyer&location=${encodeURIComponent(
-                    property.city || property.state || ""
-                  )}`}
-                  className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-                >
-                  ⚖️ Find a Property Lawyer
-                </Link>
+  <Link
+    href={`/businesses?category=Builder%20%2F%20Contractor&location=${encodeURIComponent(
+      property.city || property.state || ""
+    )}`}
+    className="bg-white/10 border border-white/10 rounded-lg sm:rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+  >
+    🏗️ Find a Builder
+  </Link>
 
-                <Link
-                  href={`/businesses?category=Builder%20%2F%20Contractor&location=${encodeURIComponent(
-                    property.city || property.state || ""
-                  )}`}
-                  className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-                >
-                  🏗️ Find a Builder
-                </Link>
+  <Link
+    href={`/businesses?category=Interior Designer&location=${encodeURIComponent(
+      property.city || property.state || ""
+    )}`}
+    className="bg-white/10 border border-white/10 rounded-lg sm:rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
+  >
+    🛋️ Find an Interior Designer
+  </Link>
 
-                <Link
-                  href={`/businesses?category=Interior Designer&location=${encodeURIComponent(
-                    property.city || property.state || ""
-                  )}`}
-                  className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 font-semibold hover:bg-[#C9A227] hover:text-[#08192E] transition"
-                >
-                  🛋️ Find an Interior Designer
-                </Link>
+</div>
 
-              </div>
+<Link
+  href={`/businesses?location=${encodeURIComponent(
+    property.city || property.state || ""
+  )}`}
+  className="inline-flex mt-4 sm:mt-6 text-sm sm:text-base text-[#C9A227] font-bold hover:text-white transition"
+>
+  Browse All Services in This Area →
+</Link>
 
-              <Link
-                href={`/businesses?location=${encodeURIComponent(
-                  property.city || property.state || ""
-                )}`}
-                className="inline-flex mt-6 text-[#C9A227] font-bold hover:text-white transition"
-              >
-                Browse All Services in This Area →
-              </Link>
-
-            </section>
+</section>
 
             {/* AGENT */}
 
