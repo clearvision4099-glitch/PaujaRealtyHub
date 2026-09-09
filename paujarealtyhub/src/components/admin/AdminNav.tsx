@@ -21,6 +21,10 @@ const adminLinks = [
     href: "/admin/businesses",
   },
   {
+    label: "Announcements",
+    href: "/admin/announcements",
+  },
+  {
     label: "Support Inbox",
     href: "/admin/support",
   },

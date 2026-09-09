@@ -11,7 +11,7 @@ export default function DashboardPage() {
     properties: 0,
     favorites: 0,
     messages: 0,
-  verified: "Active",
+    verified: "Active",
   });
 
   const [loading, setLoading] = useState(true);
@@ -67,21 +67,26 @@ export default function DashboardPage() {
             />
           </Link>
 
-          <DashboardCard
-            title="Messages"
-            value={stats.messages}
-            color="bg-green-600"
-          />
+          <Link
+            href="/dashboard/messages"
+            className="block"
+          >
+            <DashboardCard
+              title="Messages"
+              value={stats.messages}
+              color="bg-green-600"
+            />
+          </Link>
 
           <Link
             href="/dashboard/profile"
             className="block"
           >
-         <DashboardCard
-  title="Account Status"
-  value="Active"
-  color="bg-purple-600"
-/>
+            <DashboardCard
+              title="Account Status"
+              value={stats.verified}
+              color="bg-purple-600"
+            />
           </Link>
 
         </div>
