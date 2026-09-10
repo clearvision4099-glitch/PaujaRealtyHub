@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import Sidebar from "@/components/dashboard/Sidebar";
 import Topbar from "@/components/dashboard/Topbar";
@@ -12,6 +13,12 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] =
     useState(false);
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
 
   return (
     <div className="flex min-h-screen bg-[#F5F6F8]">
