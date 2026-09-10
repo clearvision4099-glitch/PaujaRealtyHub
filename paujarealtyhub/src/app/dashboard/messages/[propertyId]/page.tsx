@@ -109,15 +109,13 @@ export default function ConversationPage() {
 
         supabase
           .from("messages")
-          .select(
-            `
+          .select(`
             id,
             property_id,
             sender_id,
             receiver_id,
             created_at
-            `
-          )
+          `)
           .or(
             `sender_id.eq.${user.id},receiver_id.eq.${user.id}`
           )
@@ -292,8 +290,7 @@ export default function ConversationPage() {
   const previousConversation =
     currentConversationIndex > 0
       ? conversations[
-          currentConversationIndex -
-            1
+          currentConversationIndex - 1
         ]
       : null;
 
@@ -302,8 +299,7 @@ export default function ConversationPage() {
     currentConversationIndex <
       conversations.length - 1
       ? conversations[
-          currentConversationIndex +
-            1
+          currentConversationIndex + 1
         ]
       : null;
 
@@ -394,7 +390,7 @@ export default function ConversationPage() {
 
       <div className="bg-white rounded-2xl shadow mt-6 overflow-hidden">
 
-        {/* Conversation header */}
+        {/* CONVERSATION HEADER */}
 
         <div className="border-b p-6">
 
@@ -424,12 +420,11 @@ export default function ConversationPage() {
 
         </div>
 
-        {/* Messages */}
+        {/* MESSAGES */}
 
         <div className="p-6 min-h-[420px] max-h-[550px] overflow-y-auto bg-gray-50">
 
-          {messages.length ===
-          0 ? (
+          {messages.length === 0 ? (
             <div className="text-center text-gray-500 py-20">
               No messages in this
               conversation yet.
@@ -488,11 +483,11 @@ export default function ConversationPage() {
 
         </div>
 
-        {/* Reply box */}
+        {/* REPLY BOX */}
 
-        <div className="border-t p-5">
+        <div className="border-t p-3 sm:p-5">
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
 
             <textarea
               value={message}
@@ -503,19 +498,17 @@ export default function ConversationPage() {
               }
               placeholder="Type your message..."
               rows={2}
-              className="flex-1 border rounded-xl px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full sm:flex-1 border rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
             <button
               type="button"
-              onClick={
-                handleSend
-              }
+              onClick={handleSend}
               disabled={
                 sending ||
                 !message.trim()
               }
-              className="bg-blue-700 text-white px-7 rounded-xl hover:bg-blue-800 disabled:bg-gray-400"
+              className="w-full sm:w-auto bg-blue-700 text-white px-5 sm:px-7 py-2.5 sm:py-0 rounded-xl font-semibold hover:bg-blue-800 disabled:bg-gray-400"
             >
               {sending
                 ? "Sending..."
