@@ -138,6 +138,15 @@ export default function Sidebar() {
           ➕ Add Property
         </Link>
 
+        {/* BUSINESS */}
+
+        <Link
+          href="/dashboard/businesses"
+          className="block px-4 py-3 rounded-xl hover:bg-white/10 transition"
+        >
+          🏢 My Business
+        </Link>
+
         <Link
           href="/dashboard/favorites"
           className="block px-4 py-3 rounded-xl hover:bg-white/10 transition"
