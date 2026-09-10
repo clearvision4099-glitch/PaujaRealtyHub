@@ -172,15 +172,44 @@ export default function Footer() {
 
         </div>
 
-        <div className="border-t border-white/10 mt-14 pt-7 flex flex-col md:flex-row gap-4 md:items-center md:justify-between text-sm text-gray-500">
+        {/* LEGAL LINKS */}
 
-          <p>
-            © {new Date().getFullYear()} PaujaRealtyHub. All rights reserved.
-          </p>
+        <div className="border-t border-white/10 mt-14 pt-7">
 
-          <p>
-            Property • Trust • Intelligence
-          </p>
+          <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-gray-400 mb-6">
+            <Link
+              href="/privacy"
+              className="hover:text-white transition"
+            >
+              Privacy Policy
+            </Link>
+
+            <Link
+              href="/terms"
+              className="hover:text-white transition"
+            >
+              Terms of Use
+            </Link>
+
+            <Link
+              href="/disclaimer"
+              className="hover:text-white transition"
+            >
+              Property & Platform Disclaimer
+            </Link>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between text-sm text-gray-500">
+
+            <p>
+              © {new Date().getFullYear()} PaujaRealtyHub. All rights reserved.
+            </p>
+
+            <p>
+              Property • Trust • Intelligence
+            </p>
+
+          </div>
 
         </div>
 
