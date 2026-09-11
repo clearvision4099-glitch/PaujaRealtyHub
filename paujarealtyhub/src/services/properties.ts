@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { getAgentPropertyLimit } from "@/services/subscriptions";
 
 export async function addProperty(property: any) {
   const {
@@ -10,6 +11,53 @@ export async function addProperty(property: any) {
   if (!user) {
     throw new Error("User not authenticated");
   }
+
+  /*
+  -----------------------------------
+  CHECK ACTIVE PROPERTY LIMIT
+  -----------------------------------
+  */
+
+  const propertyLimit =
+    await getAgentPropertyLimit(user.id);
+
+  const {
+    count: activePropertyCount,
+    error: countError,
+  } = await supabase
+    .from("properties")
+    .select("*", {
+      count: "exact",
+      head: true,
+    })
+    .eq("user_id", user.id)
+    .eq("status", "Published");
+
+  if (countError) {
+    console.error(
+      "PROPERTY LIMIT CHECK ERROR:",
+      countError
+    );
+
+    throw countError;
+  }
+
+  const currentActiveCount =
+    activePropertyCount || 0;
+
+  if (
+    currentActiveCount >= propertyLimit
+  ) {
+    throw new Error(
+      `You have reached your active property limit of ${propertyLimit}. Upgrade your plan or unpublish an existing property before publishing another one.`
+    );
+  }
+
+  /*
+  -----------------------------------
+  INSERT PROPERTY
+  -----------------------------------
+  */
 
   const {
     images,
@@ -67,7 +115,9 @@ export async function getMyProperties() {
       )
     `)
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", {
+      ascending: false,
+    });
 
   if (error) {
     console.error(
@@ -78,18 +128,22 @@ export async function getMyProperties() {
     return [];
   }
 
-  return (data || []).map((property) => ({
-    ...property,
+  return (data || []).map(
+    (property) => ({
+      ...property,
 
-    property_images: [
-      ...(property.property_images || []),
-    ].sort(
-      (a: any, b: any) =>
-        Number(b.is_cover) -
-        Number(a.is_cover)
-    ),
-  }));
+      property_images: [
+        ...(property.property_images ||
+          []),
+      ].sort(
+        (a: any, b: any) =>
+          Number(b.is_cover) -
+          Number(a.is_cover)
+      ),
+    })
+  );
 }
+
 export async function updateProperty(
   id: string,
   updates: any
@@ -113,16 +167,14 @@ export async function updateProperty(
     }
   );
 
-  const {
-    data,
-    error,
-  } = await supabase
-    .from("properties")
-    .update(updates)
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .select()
-    .single();
+  const { data, error } =
+    await supabase
+      .from("properties")
+      .update(updates)
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .select()
+      .single();
 
   if (error) {
     console.error(
@@ -149,7 +201,9 @@ export async function deleteProperty(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    throw new Error("User not authenticated");
+    throw new Error(
+      "User not authenticated"
+    );
   }
 
   const { error } = await supabase
