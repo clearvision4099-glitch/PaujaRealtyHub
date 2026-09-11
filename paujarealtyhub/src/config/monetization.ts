@@ -9,8 +9,9 @@ export const MONETIZATION = {
       name: "Free Agent",
       quarterlyPrice: 0,
       annualPrice: 0,
-      activePropertyLimit: 10,
+      activePropertyLimit: 5,
       includedFeaturedPerQuarter: 0,
+      maxImagesPerProperty: 4,
     },
 
     professional: {
@@ -18,6 +19,7 @@ export const MONETIZATION = {
       quarterlyPrice: 10000,
       annualPrice: 35000,
       activePropertyLimit: 30,
+      maxImagesPerProperty: 10,
       includedFeaturedPerQuarter: 1,
     },
 
@@ -26,6 +28,7 @@ export const MONETIZATION = {
       quarterlyPrice: 20000,
       annualPrice: 70000,
       activePropertyLimit: 100,
+      maxImagesPerProperty: 15,
       includedFeaturedPerQuarter: 3,
     },
   },
