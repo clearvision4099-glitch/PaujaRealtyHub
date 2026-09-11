@@ -125,3 +125,65 @@ export async function getBusinessServiceAreaLimit(
   return MONETIZATION.businessPlans[plan]
     .serviceAreaLimit;
 }
+export async function getAgentVideoUsage(
+  userId: string
+) {
+  const plan =
+    await getAgentPlan(userId);
+
+  const planConfig =
+    MONETIZATION.agentPlans[plan];
+
+  const { data, error } =
+    await supabase
+      .from("properties")
+      .select(
+        "video_duration_seconds"
+      )
+      .eq("user_id", userId)
+      .not(
+        "video_duration_seconds",
+        "is",
+        null
+      );
+
+  if (error) {
+    console.error(
+      "GET VIDEO USAGE ERROR:",
+      error
+    );
+
+    throw error;
+  }
+
+  const usedSeconds = (
+    data || []
+  ).reduce(
+    (total, property) =>
+      total +
+      Number(
+        property.video_duration_seconds ||
+          0
+      ),
+    0
+  );
+
+  const allowanceSeconds =
+    planConfig.videoAllowanceSeconds;
+
+  const remainingSeconds =
+    Math.max(
+      allowanceSeconds -
+        usedSeconds,
+      0
+    );
+
+  return {
+    plan,
+    usedSeconds,
+    allowanceSeconds,
+    remainingSeconds,
+    maxSingleVideoSeconds:
+      planConfig.maxSingleVideoSeconds,
+  };
+}

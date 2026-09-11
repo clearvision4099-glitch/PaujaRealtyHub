@@ -10,8 +10,11 @@ export const MONETIZATION = {
       quarterlyPrice: 0,
       annualPrice: 0,
       activePropertyLimit: 5,
-      includedFeaturedPerQuarter: 0,
+      
       maxImagesPerProperty: 4,
+      videoAllowanceSeconds: 60,
+      maxSingleVideoSeconds: 60,
+        includedFeaturedPerQuarter: 0,
     },
 
     professional: {
@@ -20,6 +23,8 @@ export const MONETIZATION = {
       annualPrice: 35000,
       activePropertyLimit: 30,
       maxImagesPerProperty: 10,
+      videoAllowanceSeconds: 300,
+      maxSingleVideoSeconds: 60,
       includedFeaturedPerQuarter: 1,
     },
 
@@ -29,6 +34,8 @@ export const MONETIZATION = {
       annualPrice: 70000,
       activePropertyLimit: 100,
       maxImagesPerProperty: 15,
+      videoAllowanceSeconds: 900,
+      maxSingleVideoSeconds: 60,
       includedFeaturedPerQuarter: 3,
     },
   },
